@@ -182,7 +182,7 @@ export default {
         tasksFiltered: function () {
             var that = this
             let filterUser = this.filterUser.toString(),
-                filterStatus = this.filterStatus.toString()
+                filterStatus = this.filterStatus.toString(),
                 filterCategory = this.filterCategory.toString()
             let filtered = this.tasks.filter(function(item){
                 let filtered = true
