@@ -8,5 +8,5 @@ module.exports = {
   devServer: {
     proxy: 'https://termservice.test-nictiz.nl/',
   },
-  publicPath: '/node',
+  publicPath: '/nictiz_webtools_vue',
 }
