@@ -1,8 +1,8 @@
 name: Build Vue
 on: [push]
 jobs:
-  runs-on: ${{ fromJSON('["ubuntu-latest", "self-hosted"]')[github.repository == 'github/docs-internal'] }}
   build-and-deploy:
+    runs-on: ${{ fromJSON('["ubuntu-latest", "self-hosted"]')[github.repository == 'github/docs-internal'] }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
