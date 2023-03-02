@@ -14,7 +14,9 @@ jobs:
           cache: npm
 
       - name: Install
-        run: npm ci
+        run: |
+          cd node
+          npm ci
 
       - name: Build
         run: npm run build
