@@ -19,5 +19,7 @@ jobs:
           npm ci
 
       - name: Build
-        run: npm run build
+        run: |
+          cd node
+          npm run build
 
