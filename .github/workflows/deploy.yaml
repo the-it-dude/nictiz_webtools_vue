@@ -33,5 +33,5 @@ jobs:
           git init
           git add -A
           git commit -m 'Deployment.'
-          git push -f https://${{ vars.GH_USERNAME }}:${{ secrets.GITHUB_TOKEN }}@github.com/${{ vars.GH_PUSH_REPO }}.git $(git rev-parse --abbrev-ref HEAD):gh-pages
+          git push -f https://${{ vars.GH_USERNAME }}:${{ secrets.GITHUB_TOKEN }}@github.com/${{ vars.GH_PUSH_REPO }}.git master:gh-pages
 
