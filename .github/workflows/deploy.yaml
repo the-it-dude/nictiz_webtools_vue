@@ -1,8 +1,7 @@
 name: Build Vue
 on: [push]
 jobs:
-  check-links:
-    runs-on: ${{ fromJSON('["ubuntu-latest", "self-hosted"]')[github.repository == 'github/docs-internal'] }}
+  build-and-deploy:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -22,4 +21,13 @@ jobs:
         run: |
           cd node
           npm run build
+
+      - name: Push to Github Pages
+        # echo '${{ vars.GH_PAGES_CNAME }}' > CNAME
+        git config --global user.email "${{ vars.GH_EMAIL }}"
+        git config --global user.name "${{ vars.GH_NAME }}"
+        git init
+        git add -A
+        git commit -m 'Deployment.'
+        git push -f https://${{ vars.GH_USERNAME }}:${{ secrets.GITHUB_TOKEN }}@github.com/${{ vars.GITHUB_REPOSITORY }}.git master:gh-pages
 
