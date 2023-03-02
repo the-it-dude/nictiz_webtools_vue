@@ -13,26 +13,6 @@
                 <v-col cols=4>
                     <v-card>
                         <v-card-title>
-                            Nieuwe taken aanmaken
-                        </v-card-title>   
-                        <v-card-text>
-                            <ul>
-                                <li>1 Concept ID per regel</li>
-                                <li>Niet meer dan 5000 per keer</li>
-                            </ul>
-                            <v-textarea
-                                v-model="createTasks"
-                                label="Plak hier de aan te maken taken"
-                                autofocus
-                                clearable
-                                hide-details
-                                ></v-textarea>
-                        </v-card-text>
-                    </v-card>
-                </v-col>
-                <v-col cols=4>
-                    <v-card>
-                        <v-card-title>
                             Filters en zoeken
                         </v-card-title>   
                         <v-card-text>
@@ -73,6 +53,26 @@
                                 </tbody>
 
                             </v-simple-table>
+                        </v-card-text>
+                    </v-card>
+                </v-col>
+                <v-col cols=4>
+                    <v-card>
+                        <v-card-title>
+                            Nieuwe taken aanmaken
+                        </v-card-title>   
+                        <v-card-text>
+                            <ul>
+                                <li>1 Concept ID per regel</li>
+                                <li>Niet meer dan 5000 per keer</li>
+                            </ul>
+                            <v-textarea
+                                v-model="createTasks"
+                                label="Plak hier de aan te maken taken"
+                                autofocus
+                                clearable
+                                hide-details
+                                ></v-textarea>
                         </v-card-text>
                     </v-card>
                 </v-col>
@@ -223,7 +223,10 @@ export default {
             return this.$store.state.userData
         },
         users(){
-            return this.$store.state.MappingProjects.users
+            let users = this.$store.state.MappingProjects.users
+            return users.map(function(u) {
+                return {"value": u.value, "text": u.name}
+            })
         },
         statuses(){
             return this.$store.state.MappingProjects.statuses

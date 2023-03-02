@@ -41,7 +41,7 @@ export default {
         }
     },
     created() {
-        this.$store.dispatch('MappingTasks/getAutomap', this.$route.params.taskid)
+        // this.$store.dispatch('MappingTasks/getAutomap', this.$route.params.taskid)
     }
 }
 </script>

@@ -84,11 +84,11 @@
                             :key="item.id"
                             :class="{'cyan lighten-3' : item.id == selectedTask.id}">
                             <v-list-item-content>
-                                <v-list-item-title 
+                                <v-list-item-title
                                     v-html="item.component.title"></v-list-item-title>
                                 <v-list-item-subtitle>
                                     {{item.status.title}} @ {{item.user.name}} [{{item.category}}]<br>
-                                    Code: {{item.component.id}} / Taak: {{item.id}}                                    
+                                    Code: {{item.component.id}} / Taak: {{item.id}}
                                     </v-list-item-subtitle>
                             </v-list-item-content>
                         </v-list-item>
@@ -110,7 +110,7 @@
                 ></v-pagination>
             </v-card>
 
-            
+
         </v-container>
     </div>
 </template>
@@ -182,9 +182,9 @@ export default {
         tasksFiltered: function () {
             var that = this
             let filterUser = this.filterUser.toString(),
-                filterStatus = this.filterStatus.toString(),
+                filterStatus = this.filterStatus.toString()
                 filterCategory = this.filterCategory.toString()
-            return this.tasks.filter(function(item){
+            let filtered = this.tasks.filter(function(item){
                 let filtered = true
                 if(that.filterOnUser && filterUser && (filterUser.length > 0)){
                     filtered = item.user.id == filterUser
@@ -199,8 +199,10 @@ export default {
                         filtered = item.category == filterCategory
                     }
                 }
+
                 return filtered
             })
+            return filtered
         },
         visiblePages () {
             return this.tasksFiltered.slice((this.page - 1)* this.perPage, this.page* this.perPage)

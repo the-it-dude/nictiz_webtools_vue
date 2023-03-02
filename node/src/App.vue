@@ -31,49 +31,6 @@
           </v-list-item-content>
         </v-list-item>
 
-        <!-- Groep Demo's -->
-        <v-list-group
-          prepend-icon="account_circle"
-          :value="false"
-          v-if="groups.includes('demo | groep')"
-        >
-          <template v-slot:activator>
-            <v-list-item-content>
-              <v-list-item-title>Demo's</v-list-item-title>
-            </v-list-item-content>
-          </template>
-
-          <!-- Link 1 in subgroep -->
-          <v-list-item v-if="groups.includes('dhd | demo integratie')">
-            <v-list-item-action></v-list-item-action>
-            <v-list-item-content>
-                <router-link to="/demo/Snomed-DT"><v-list-item-title>Integratie DT/SNOMED</v-list-item-title></router-link>
-            </v-list-item-content>
-          </v-list-item>
-          <!-- Link 2 in subgroep -->
-          <v-list-item v-if="groups.includes('demo | demo MRCM')">
-            <v-list-item-action></v-list-item-action>
-            <v-list-item-content>
-                <router-link to="/demo/Snomed-MRCM"><v-list-item-title>SNOMED MRCM</v-list-item-title></router-link>
-            </v-list-item-content>
-          </v-list-item>
-          <!-- Link 3 in subgroep -->
-          <v-list-item v-if="groups.includes('demo | demo MRCM')">
-            <v-list-item-action></v-list-item-action>
-            <v-list-item-content>
-                <router-link to="/demo/Postco"><v-list-item-title>SNOMED Postco</v-list-item-title></router-link>
-            </v-list-item-content>
-          </v-list-item>
-          <!-- Link 4 in subgroep -->
-          <v-list-item v-if="groups.includes('HTML tree')">
-            <v-list-item-action></v-list-item-action>
-            <v-list-item-content>
-                <router-link to="/demo/Snomed-tree"><v-list-item-title>SNOMED tree</v-list-item-title></router-link>
-            </v-list-item-content>
-          </v-list-item>
-        </v-list-group>
-        <!-- EIND Groep Demo's -->
-
         <!-- Groep Termspace tools -->
         <v-list-group
           prepend-icon="account_circle"
