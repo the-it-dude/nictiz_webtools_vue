@@ -6,7 +6,8 @@ module.exports = {
     disableHostCheck: true
   },
   devServer: {
-    proxy: 'https://termservice.test-nictiz.nl/',
+    //proxy: 'https://termservice.test-nictiz.nl/',
+    proxy: 'https://mapping.nictiz.deitdude.nl/',
   },
   publicPath: '/',
 }
