@@ -15,6 +15,7 @@ function login(username, password) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password })
     };
+    console.log(store.state.baseUrl);
     return fetch(`${store.state.baseUrl}jwtauth/token/`, requestOptions)
         .then(handleResponse)
         .then(user => {
