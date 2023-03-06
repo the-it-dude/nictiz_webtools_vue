@@ -38,13 +38,14 @@ import { alert } from './alert.module';
 Vue.use(Vuex)
 Vue.use(axios)
 
-var envBaseUrl = 'https://termservice.test-nictiz.nl/'
+//var envBaseUrl = 'https://termservice.test-nictiz.nl/'
+var envBaseUrl = 'https://mapping.nictiz.deitdude.nl'/
 if(process.env['NODE_ENV'] == 'development'){
   envBaseUrl = 'http://localhost:8000/'
 }
-if (process.env.BASE_URL) {
-  envBaseUrl = process.env.BASE_URL
-}
+//if (process.env.BASE_URL) {
+//  envBaseUrl = process.env.BASE_URL
+//}
 
 export default new Vuex.Store({
   state: {
