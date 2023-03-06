@@ -42,6 +42,9 @@ var envBaseUrl = 'https://termservice.test-nictiz.nl/'
 if(process.env['NODE_ENV'] == 'development'){
   envBaseUrl = 'http://localhost:8000/'
 }
+if (process.env.BASE_URL) {
+  envBaseUrl = process.env.BASE_URL
+}
 
 export default new Vuex.Store({
   state: {
@@ -56,7 +59,7 @@ export default new Vuex.Store({
       Epd,
       TermspaceComments,
       Snowstorm,
-      Validation, 
+      Validation,
       TreeView,
       MRCM,
       Postco,
