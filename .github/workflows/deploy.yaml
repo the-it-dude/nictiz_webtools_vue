@@ -21,7 +21,7 @@ jobs:
       - name: Build
         run: |
           cd node
-          echo 'BASE_URL=${{ vars.GH_BASE_URL }}' >> node/.env
+          echo 'BASE_URL=${{ vars.GH_BASE_URL }}' >> .env
           npm run build
         env:
           BASE_URL: "${{ vars.GH_BASE_URL }}"
