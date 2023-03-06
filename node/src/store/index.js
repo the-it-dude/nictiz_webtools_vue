@@ -40,7 +40,6 @@ Vue.use(axios)
 
 //var envBaseUrl = 'https://termservice.test-nictiz.nl/'
 var envBaseUrl = 'https://mapping.nictiz.deitdude.nl/'
-console.log(process.env);
 if(process.env['NODE_ENV'] == 'development'){
   envBaseUrl = 'http://localhost:8000/'
 }
