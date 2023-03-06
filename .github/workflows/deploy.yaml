@@ -22,6 +22,8 @@ jobs:
         run: |
           cd node
           npm run build
+        env:
+          BASE_URL: https://${{ vars.GH_PAGES_CNAME }}/
 
       - name: Push to Github Pages
         run: |
