@@ -46,6 +46,17 @@
                             <v-select class="pa-1" :items="perPageOptions" v-model="perPage" label="Aantal per pagina"></v-select>
                         </v-col>
                     </v-row>
+                    <v-row>
+                        <v-col cols=1>
+                            <v-checkbox v-model="filterOnID"></v-checkbox>
+                        </v-col>
+                        <v-col cols=10>
+                            <v-text-field
+                                label="Zoek op ID"
+                                v-model="filterID"
+                            ></v-text-field>
+                        </v-col>
+                    </v-row>
                     <!-- <v-row>
                         <v-col cols=1>
                             <v-checkbox v-model="filterOnCode"></v-checkbox>
@@ -127,6 +138,8 @@ export default {
             filterOnCode: true,
             filterOnCategory: true,
             filterBox: false,
+            filterID: '',
+            filterOnID: false,
 
             selectedColor: 'green',
 
@@ -183,7 +196,9 @@ export default {
             var that = this
             let filterUser = this.filterUser.toString(),
                 filterStatus = this.filterStatus.toString(),
-                filterCategory = this.filterCategory.toString()
+                filterCategory = this.filterCategory.toString(),
+                filterID = this.filterID.toString()
+
             let filtered = this.tasks.filter(function(item){
                 let filtered = true
                 if(that.filterOnUser && filterUser && (filterUser.length > 0)){
@@ -199,12 +214,18 @@ export default {
                         filtered = item.category == filterCategory
                     }
                 }
+                if (filtered) {
+                    console.log(that.filterOnID, filterID, item);
+                    if (that.filterOnID && filterID && filterID.length > 0) {
+                        filtered = item.id == filterID
+                    }
+                }
 
                 return filtered
             })
             return filtered
         },
-        visiblePages () {
+        visiblePages: function () {
             return this.tasksFiltered.slice((this.page - 1)* this.perPage, this.page* this.perPage)
         },
     },

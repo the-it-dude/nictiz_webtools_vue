@@ -32,10 +32,9 @@ const state = {
       // context.state.RcRules = {}
       context.state.loading = true
       axios
-      .get(context.rootState.baseUrl+'mapping/api/1.0/projects/')
+      .get(context.rootState.baseUrl + 'mapping/api/1.0/projects/')
       .then((response) => {
           context.state.loading = false
-          console.log(response.data)
           context.commit('setProjects',response.data)
           return true;
       })
@@ -44,10 +43,9 @@ const state = {
       // context.state.RcRules = {}
       context.state.loading = true
       axios
-      .get(context.rootState.baseUrl+'mapping/api/1.0/projects/'+projectid+'/')
+      .get(context.rootState.baseUrl + 'mapping/api/1.0/projects/' + projectid + '/')
       .then((response) => {
           context.state.loading = false
-          console.log(response.data)
           context.commit('setProjectDetails',response.data)
           this.$toast.info('Info toast')
           return true;
@@ -57,10 +55,9 @@ const state = {
       // context.state.RcRules = {}
       context.state.loading = true
       axios
-      .get(context.rootState.baseUrl+'mapping/api/1.0/statuses/'+projectid+'/')
+      .get(context.rootState.baseUrl + 'mapping/api/1.0/statuses/' + projectid + '/')
       .then((response) => {
           context.state.loading = false
-          console.log(response.data)
           context.commit('setProjectStatuses',response.data)
           return true;
       })
@@ -69,11 +66,10 @@ const state = {
       // context.state.RcRules = {}
       context.state.loading = true
       axios
-      .get(context.rootState.baseUrl+'mapping/api/1.0/users/'+projectid+'/')
+      .get(context.rootState.baseUrl + 'mapping/api/1.0/users/' + projectid + '/')
       .then((response) => {
           context.state.loading = false
-          console.log(response.data)
-          context.commit('setProjectUsers',response.data)
+          context.commit('setProjectUsers', response.data)
           return true;
       })
     },

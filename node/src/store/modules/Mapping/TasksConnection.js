@@ -426,18 +426,18 @@ const state = {
         headers: {'X-CSRFToken' : Vue.$cookies.get('csrftoken')},
         withCredentials: true
       }
-      axios
-      .post(context.rootState.baseUrl+'mapping/api/1.0/users/', {
-        'user' : payload,
-        'task' : context.state.selectedTask.id,
-      },auth)
-      .then(() => {
-        context.dispatch('getTaskDetails',context.state.selectedTask.id)
-        context.dispatch('getTasks',context.state.selectedTask.project.id)
-        context.dispatch('getComments',context.state.selectedTask.id)
+      axios.post(
+        context.rootState.baseUrl + 'mapping/api/1.0/users/' + context.state.selectedTask.project.id + "/", {
+          'user': payload,
+          'task': context.state.selectedTask.id,
+        },
+        auth
+      ).then(() => {
+        context.dispatch('getTaskDetails', context.state.selectedTask.id)
+        context.dispatch('getTasks', context.state.selectedTask.project.id)
+        context.dispatch('getComments', context.state.selectedTask.id)
         return true;
-        }
-      )
+      })
     },
     changeStatus:(context, payload) => {
       const auth = {
