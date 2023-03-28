@@ -1,6 +1,6 @@
 <template>
     <div>
-        <v-container 
+        <v-container
             v-if="user.groups.includes('mapping | access')"
             fluid>
             <v-card class="pa-0 ma-0">
@@ -27,7 +27,6 @@
                                 <td>
                                     <div v-for="(task,key) in relatedTasks" :key="key" dense>
                                         <li v-if="task.id != selectedTask.id">
-                                            <!-- {{task.source_component.component_id}} {{task.source_component.component_title}}<br> -->
                                             {{task.project.title}} [{{task.status.title}} @ {{task.user.username}}] <br/> {{task.source_component.codesystem_title}} #{{task.source_component.component_id}} |{{task.source_component.component_title}}|
                                             <v-btn text :href="`#/mapping/Projects/${task.project.id}/Task/`+task.id" target="_blank"><v-icon>mdi-link</v-icon></v-btn>
 
@@ -76,6 +75,7 @@ export default {
             return this.$store.state.MappingTasks.selectedTask
         },
         relatedTasks(){
+            console.log(this.$store.state.MappingTasks.relatedTasks)
             return this.$store.state.MappingTasks.relatedTasks
         },
         loading(){
@@ -86,7 +86,7 @@ export default {
         }
     },
     created() {
-        this.$store.dispatch('MappingTasks/getMappingTargets',this.selectedTask.id)
+        this.$store.dispatch('MappingTasks/getMappingTargets', this.selectedTask.id)
         // this.$store.dispatch('MappingTasks/getTasks',this.$route.params.projectid)
     }
 }

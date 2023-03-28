@@ -12,7 +12,7 @@
                 >
                     <v-app-bar-nav-icon @click="toggleFilterBox()">filter</v-app-bar-nav-icon>
 
-                    <v-toolbar-title>Inbox ({{tasksFiltered.length}})</v-toolbar-title>
+                    <v-toolbar-title>Inbox ({{totalTasks}})</v-toolbar-title>
                 </v-toolbar>
                 <v-card-text v-if="filterBox">
                     <v-row>
@@ -43,7 +43,7 @@
                         <v-col cols=1>
                         </v-col>
                         <v-col cols=10>
-                            <v-select class="pa-1" :items="perPageOptions" v-model="perPage" label="Aantal per pagina"></v-select>
+                            <v-select class="pa-1" :items="perPageOptions" v-model="perPage" v-on:change="handlePerPageChange" label="Aantal per pagina"></v-select>
                         </v-col>
                     </v-row>
                     <v-row>
@@ -80,7 +80,8 @@
                     v-model="page"
                     total-visible="5"
                     dense
-                    :length="Math.ceil(tasksFiltered.length/perPage)"
+                    :length="numPages"
+                    @input="handlePageChange"
                 ></v-pagination>
 
                 <v-list three-line
@@ -88,10 +89,10 @@
                     class="overflow-y-auto pa-0"
                     >
                     <v-list-item-group
-                        v-model=visiblePages>
+                        v-model=tasks>
                         <v-list-item
                             @click="selectTask(item.id)"
-                            v-for="item in visiblePages"
+                            v-for="item in tasks"
                             :key="item.id"
                             :class="{'cyan lighten-3' : item.id == selectedTask.id}">
                             <v-list-item-content>
@@ -107,7 +108,7 @@
                 </v-list>
 
                 <v-skeleton-loader
-                    v-if="(loading) && (!selectedTask)"
+                    v-if="(loadingTasks)"
                     class="mx-auto"
                     max-width="400"
                     type="article"
@@ -117,7 +118,8 @@
                     v-model="page"
                     total-visible="5"
                     dense
-                    :length="Math.ceil(tasksFiltered.length/perPage)"
+                    :length="numPages"
+                    @input="handlePageChange"
                 ></v-pagination>
             </v-card>
 
@@ -126,22 +128,35 @@
     </div>
 </template>
 <script>
+
+import MappingProjectService from '../../services/mapping_project.service';
+
 export default {
+    props:{
+        project: Object
+    },
+    emits: ["selected"],
     data() {
         return {
             filterStatus: '',
             filterUser: this.$store.state.userData.id,
             filterCode: '',
             filterCategory: 'Prioriteit 1',
-            filterOnUser: true,
-            filterOnStatus: true,
-            filterOnCode: true,
-            filterOnCategory: true,
-            filterBox: false,
+            filterOnUser: false,
+            filterOnStatus: false,
+            filterOnCode: false,
+            filterOnCategory: false,
+            filterBox: true,
             filterID: '',
             filterOnID: false,
 
             selectedColor: 'green',
+
+            // Paginated Tasks
+            loadingTasks: true,
+            tasks: [],
+            tasksOffset: 0,
+            totalTasks: 0,
 
             page: 1,
             perPage: 8,
@@ -149,16 +164,17 @@ export default {
         }
     },
     methods: {
-        selectTask(taskid){
-            this.$router.push({ path: `/mapping/Projects/${this.$route.params.projectid}/Task/`+taskid });
-            this.$store.dispatch('MappingTasks/getAutomap', taskid)
-            this.$store.dispatch('MappingAudits/getAudits',taskid)
-            this.$store.dispatch('MappingTasks/getTaskDetails',taskid)
-            this.$store.dispatch('MappingTasks/getMappingTargets',taskid)
-            this.$store.dispatch('MappingTasks/getReverse', taskid)
-            this.$store.dispatch('MappingTasks/getComments',taskid)
-            this.$store.dispatch('MappingTasks/getReverseExclusions', taskid)
-            this.$store.dispatch('MappingTasks/getRelatedTasks', taskid)
+        selectTask(taskId){
+            // this.$router.push({ path: `/mapping/Projects/${this.$route.params.projectid}/Task/`+taskId })
+            this.$emit("selected", taskId)
+            // this.$store.dispatch('MappingTasks/getAutomap', taskid)
+            // this.$store.dispatch('MappingAudits/getAudits',taskid)
+            // this.$store.dispatch('MappingTasks/getTaskDetails',taskid)
+            // // this.$store.dispatch('MappingTasks/getMappingTargets',taskid)
+            // this.$store.dispatch('MappingTasks/getReverse', taskid)
+            // this.$store.dispatch('MappingTasks/getComments',taskid)
+            // this.$store.dispatch('MappingTasks/getReverseExclusions', taskid)
+            // this.$store.dispatch('MappingTasks/getRelatedTasks', taskid)
 
         },
         toggleFilterBox(){
@@ -168,6 +184,39 @@ export default {
                 this.filterBox = true
             }
             return true
+        },
+        getTasks() {
+            const that = this
+            let params = {
+                "limit": this.perPage,
+                "offset": (this.page -1 ) * this.perPage
+            }
+            if (this.filterOnStatus && this.filterStatus) {
+                params["status"] = this.filterStatus
+            }
+            if (this.filterOnUser && this.filterUser) {
+                params["user"] = this.filterUser
+            }
+            if (this.filterOnCategory && this.filterCategory) {
+                params["category"] = this.filterCategory
+            }
+
+            this.loadingTasks = true
+            this.tasks = []
+            MappingProjectService.get_tasks(this.project.id, params).then((response) => {
+                that.tasks = response.results
+                this.totalTasks = response.count
+                that.loadingTasks = false
+            })
+        },
+        handlePerPageChange(value) {
+            this.perPage = value
+            this.page = 1
+            this.getTasks()
+        },
+        handlePageChange(value) {
+            this.page = value;
+            this.getTasks();
         }
     },
     computed: {
@@ -183,54 +232,51 @@ export default {
         selectedTask(){
             return this.$store.state.MappingTasks.selectedTask
         },
-        tasks(){
-            return this.$store.state.MappingTasks.tasks
-        },
+        //tasks(){
+        // return this.$store.state.MappingTasks.tasks
+        //},
         loading(){
             return this.$store.state.MappingTasks.loading.tasklist
         },
         user(){
             return this.$store.state.userData
         },
-        tasksFiltered: function () {
-            var that = this
-            let filterUser = this.filterUser.toString(),
-                filterStatus = this.filterStatus.toString(),
-                filterCategory = this.filterCategory.toString(),
-                filterID = this.filterID.toString()
-
-            let filtered = this.tasks.filter(function(item){
-                let filtered = true
-                if(that.filterOnUser && filterUser && (filterUser.length > 0)){
-                    filtered = item.user.id == filterUser
-                }
-                if(filtered){
-                    if(that.filterOnStatus && filterStatus && filterStatus.length > 0){
-                        filtered = item.status.id == filterStatus
-                    }
-                }
-                if(filtered){
-                    if(that.filterOnCategory && filterCategory && filterCategory.length > 0){
-                        filtered = item.category == filterCategory
-                    }
-                }
-                if (filtered) {
-                    console.log(that.filterOnID, filterID, item);
-                    if (that.filterOnID && filterID && filterID.length > 0) {
-                        filtered = item.id == filterID
-                    }
-                }
-
-                return filtered
-            })
-            return filtered
-        },
-        visiblePages: function () {
-            return this.tasksFiltered.slice((this.page - 1)* this.perPage, this.page* this.perPage)
-        },
+        numPages: function() {
+            return Math.ceil(this.totalTasks / this.perPage)
+        }
+    },
+    watch: {
+        filterOnUser: filterBool("filterUser"),
+        filterUser: filterVal("filterUser"),
+        filterOnStatus: filterBool("filterStatus"),
+        filterStatus: filterVal("filterStatus"),
+        filterOnCategory: filterBool("filterCategory"),
+        filterCategory: filterVal("filterCategory")
     },
     created() {
-        // this.$store.dispatch('MappingTasks/getTasks',this.$route.params.projectid)
+        this.getTasks()
+    }
+}
+
+
+function filterBool(model) {
+    return function inner(val, oldVal) {
+        if (val !== oldVal) {
+            if (val) {
+                if (this[model]) {
+                    this.getTasks()
+                }
+            } else {
+                this.getTasks()
+            }
+        }
+    }
+}
+function filterVal(model) {
+    return function inner(val, oldVal) {
+        if (val !== oldVal && this[model] && val) {
+            this.getTasks()
+        }
     }
 }
 </script>

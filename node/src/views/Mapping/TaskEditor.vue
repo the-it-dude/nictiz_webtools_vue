@@ -22,12 +22,12 @@
                         <v-row no-gutters>
                             <v-col cols=12>
                                 <BackToProjects />
-                                <TaskList />
+                                <TaskList :project="selectedProject" @selected="taskSelected($event)" />
                             </v-col>
                         </v-row>
                     </v-col>
 
-                    
+
                     <v-col cols=5 v-if="selectedTask">
                         <v-row no-gutters>
                             <v-col cols=12>
@@ -70,7 +70,7 @@
                             </v-col>
                         </v-row>
                     </v-col>
-                    
+
                     <v-col cols=4>
                         <v-row no-gutters>
                             <v-col cols=12>
@@ -86,7 +86,7 @@
                         <v-row no-gutters>
                             <v-col cols=12>
                                 <BackToProjects />
-                                <TaskList />
+                                <TaskList :project="selectedProject" @selected="taskSelected($event)" />
                             </v-col>
                         </v-row>
                     </v-col>
@@ -113,7 +113,7 @@
                             </v-col>
                         </v-row>
                     </v-col>
-                    
+
                     <v-col cols=4 v-if="selectedTask">
                         <v-row no-gutters>
                             <v-col cols=12>
@@ -146,7 +146,7 @@
                             </v-col>
                         </v-row>
                     </v-col>
-                    
+
                 </v-row>
             </v-col>
     </div>
@@ -184,23 +184,28 @@ export default {
         ResetTask,
     },
     created(){
-        
-        this.$store.dispatch('MappingTasks/getTasks', this.$route.params.projectid)
-    
+        //this.$store.dispatch('MappingTasks/getTasks', this.$route.params.projectid)
+
         if(this.$route.params.projectid){
             this.$store.dispatch('MappingProjects/getProjectDetails', this.$route.params.projectid)
             this.$store.dispatch('MappingProjects/getProjectStatuses',this.$route.params.projectid)
             this.$store.dispatch('MappingProjects/getProjectUsers',this.$route.params.projectid)
         }
+
         if(this.$route.params.taskid){
-            this.$store.dispatch('MappingTasks/getAutomap', this.$route.params.taskid)
-            this.$store.dispatch('MappingTasks/getTaskDetails', this.$route.params.taskid)
-            this.$store.dispatch('MappingTasks/getComments', this.$route.params.taskid)
-            this.$store.dispatch('MappingTasks/getReverse', this.$route.params.taskid)
-            this.$store.dispatch('MappingTasks/getMappingTargets', this.$route.params.taskid)
-            this.$store.dispatch('MappingAudits/getAudits', this.$route.params.taskid)
-            this.$store.dispatch('MappingTasks/getReverseExclusions', this.$route.params.taskid)            
-            this.$store.dispatch('MappingTasks/getRelatedTasks', this.$route.params.taskid)
+            // this.$store.dispatch('MappingTasks/getAutomap', this.$route.params.taskid)
+            // this.$store.dispatch('MappingTasks/getTaskDetails', this.$route.params.taskid)
+            // this.$store.dispatch('MappingTasks/getComments', this.$route.params.taskid)
+            // this.$store.dispatch('MappingTasks/getReverse', this.$route.params.taskid)
+            // this.$store.dispatch('MappingTasks/getMappingTargets', this.$route.params.taskid)
+            // this.$store.dispatch('MappingAudits/getAudits', this.$route.params.taskid)
+            // this.$store.dispatch('MappingTasks/getReverseExclusions', this.$route.params.taskid)
+            // this.$store.dispatch('MappingTasks/getRelatedTasks', this.$route.params.taskid)
+        }
+    },
+    methods: {
+        taskSelected: function(taskId) {
+            this.$router.push({ path: `/mapping/Projects/${this.$route.params.projectid}/Task/`+taskId });
         }
     },
     computed: {

@@ -103,18 +103,18 @@ const state = {
           context.state.loading.automap = false
           return true;
       })
-    },   
+    },
     getTasks: (context, projectid) => {
       context.state.loading.tasklist = true
       axios
       .get(context.rootState.baseUrl+'mapping/api/1.0/tasklist/'+projectid+'/')
       .then((response) => {
           console.log(response.data)
-          context.commit('setTasks',response.data)
+          context.commit('setTasks', response.data.results)
           context.state.loading.tasklist = false
           return true;
       })
-    },   
+    },
     resetTask: (context, task_id) => {
       axios
       .get(context.rootState.baseUrl+'mapping/api/1.0/mapping_reset_task/'+task_id+'/')
@@ -122,7 +122,7 @@ const state = {
           console.log(response.data)
           return true;
       })
-    },   
+    },
     getRelatedTasks: (context, componentid) => {
       axios
       .get(context.rootState.baseUrl+'mapping/api/1.0/related_tasks/'+componentid+'/')
@@ -131,7 +131,7 @@ const state = {
           context.commit('setRelatedTasks',response.data)
           return true;
       })
-    },   
+    },
     getReverseExclusions: (context, component_id) => {
       context.state.loading.reverseExclusions = true
       axios
@@ -142,7 +142,7 @@ const state = {
           context.state.loading.reverseExclusions = false
       return true;
       })
-    },    
+    },
     getTaskDetails: (context, taskid) => {
       context.state.loading.details = true
       axios
@@ -153,7 +153,7 @@ const state = {
           context.state.loading.details = false
           return true;
       })
-    },    
+    },
     getComments: (context, taskid) => {
       context.state.loading.comments = true
       axios
@@ -268,7 +268,7 @@ const state = {
       })
     },
 
-    // Voegt een mapping naar een concept toe 
+    // Voegt een mapping naar een concept toe
     addMappingFromReverse:(context, payload) => {
       const auth = {
         headers: {'X-CSRFToken' : Vue.$cookies.get('csrftoken')},
@@ -318,7 +318,7 @@ const state = {
         'payload' : payload,
       },auth)
     },
-    
+
     mappingsEclToRules: (context, taskid) => {
       context.state.loading.eclToRules = true
       axios
@@ -356,7 +356,7 @@ const state = {
           return true;
       })
     },
-    
+
     TargetSearch: _.debounce((context, payload) => {
         context.state.loading.search = true
         const auth = {
@@ -391,7 +391,7 @@ const state = {
           return true;
           }
         )
-    },    
+    },
     postComment:(context, payload) => {
       const auth = {
         headers: {'X-CSRFToken' : Vue.$cookies.get('csrftoken')},

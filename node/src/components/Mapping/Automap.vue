@@ -1,6 +1,6 @@
 <template>
     <div v-if="automap.length > 0">
-        <v-container 
+        <v-container
             v-if="user.groups.includes('mapping | access')"
             tile>
             <v-card>
@@ -27,7 +27,7 @@ export default {
         }
     },
     methods: {
-        
+
     },
     computed: {
         automap(){

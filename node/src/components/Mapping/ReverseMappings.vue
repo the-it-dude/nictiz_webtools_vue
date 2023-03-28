@@ -8,7 +8,7 @@
                     Reverse mappings
                 </v-card-title>
                 <v-card-text>
-                    <v-alert 
+                    <v-alert
                         border="left"
                         dense
                         color="green lighten-2"
@@ -24,7 +24,7 @@
                             )
                             <v-btn text v-if="mapping.codesystem.title == 'SNOMED'" :href="'https://terminologie.nictiz.nl/art-decor/snomed-ct?conceptId='+mapping.id" target="_blank"><v-icon>mdi-link</v-icon></v-btn>
                             <v-btn text v-if="mapping.codesystem.title == 'Labcodeset'" :href="'https://labterminologie.nl/art-decor/labconcepts?search='+mapping.id" target="_blank"><v-icon>mdi-link</v-icon></v-btn>
-                            <v-btn 
+                            <v-btn
                                 v-if="(selectedProject.type == '1') && (selectedTask.user.id == user.id)"
                                 text
                                 @click="addMappingFromReverse(selectedTask.id, mapping.id, mapping.codesystem.id)">
@@ -38,7 +38,7 @@
                     <v-expansion-panels>
                         <v-expansion-panel>
                             <v-expansion-panel-header>
-                                <v-alert 
+                                <v-alert
                                     border="left"
                                     dense
                                     color="green lighten-2"
@@ -55,8 +55,8 @@
                                     dense
                                 >
                                     <template v-slot:top="{ pagination, options, updateOptions }">
-                                        <v-data-footer 
-                                        :pagination="pagination" 
+                                        <v-data-footer
+                                        :pagination="pagination"
                                         :options="options"
                                         @update:options="updateOptions"
                                         items-per-page-text="$vuetify.dataTable.itemsPerPageText"/>
@@ -70,7 +70,7 @@
                                         <font v-if="item.correlation == '447561005'">Not specified</font>
                                     </template>
                                     <template v-slot:item.add="{item}">
-                                        <v-btn 
+                                        <v-btn
                                             v-if="(selectedProject.type == '1') && (selectedTask.user.id == user.id)"
                                             text
                                             @click="addMappingFromReverse(selectedTask.id, item.id, item.codesystem.id)">
@@ -121,7 +121,7 @@ export default {
         }
     },
     mounted() {
-        this.$store.dispatch('MappingAudits/getReverse',this.selectedTask.id)
+        //this.$store.dispatch('MappingAudits/getReverse',this.selectedTask.id)
     }
 }
 </script>

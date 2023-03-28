@@ -16,7 +16,7 @@ const state = {
     },
     setProjectDetails: (state, payload) => {
       state.selectedProject = payload
-      state.rootState.MappingTasks.selectedTask = {}
+      //state.MappingTasks.selectedTask = {}
     },
     setProjectStatuses: (state, payload) => {
       state.statuses = payload
@@ -38,7 +38,7 @@ const state = {
           context.commit('setProjects',response.data)
           return true;
       })
-    },  
+    },
     getProjectDetails: (context, projectid) => {
       // context.state.RcRules = {}
       context.state.loading = true
@@ -46,8 +46,8 @@ const state = {
       .get(context.rootState.baseUrl + 'mapping/api/1.0/projects/' + projectid + '/')
       .then((response) => {
           context.state.loading = false
-          context.commit('setProjectDetails',response.data)
-          this.$toast.info('Info toast')
+          context.commit('setProjectDetails', response.data)
+          //this.$toast.info('Info toast')
           return true;
       })
     },
@@ -58,7 +58,7 @@ const state = {
       .get(context.rootState.baseUrl + 'mapping/api/1.0/statuses/' + projectid + '/')
       .then((response) => {
           context.state.loading = false
-          context.commit('setProjectStatuses',response.data)
+          context.commit('setProjectStatuses', response.data)
           return true;
       })
     },
@@ -69,7 +69,7 @@ const state = {
       .get(context.rootState.baseUrl + 'mapping/api/1.0/users/' + projectid + '/')
       .then((response) => {
           context.state.loading = false
-          context.commit('setProjectUsers', response.data)
+          context.commit('setProjectUsers', response.data.results)
           return true;
       })
     },
