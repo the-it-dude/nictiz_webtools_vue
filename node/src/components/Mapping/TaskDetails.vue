@@ -27,10 +27,10 @@
                                 <td>
                                     <div v-for="(task,key) in relatedTasks" :key="key" dense>
                                         <li v-if="task.id != selectedTask.id">
-                                            {{task.project.title}} [{{task.status.title}} @ {{task.user.username}}] <br/> {{task.source_component.codesystem_title}} #{{task.source_component.component_id}} |{{task.source_component.component_title}}|
-                                            <v-btn text :href="`#/mapping/Projects/${task.project.id}/Task/`+task.id" target="_blank"><v-icon>mdi-link</v-icon></v-btn>
+                                            {{  task.project.title }} [{{  task.status.title }} @ {{  task.user.username }}] <br/> {{  task.component.codesystem.title }} #{{  task.component.id }} |{{  task.component.title }}|
+                                            <v-btn text :href="`#/mapping/Projects/${ task.project.id }/Task/` + task.id" target="_blank"><v-icon>mdi-link</v-icon></v-btn>
 
-                                            <v-tooltip right v-if="task.comments.length > 0">
+                                            <v-tooltip right v-if="task.comments">
                                                 <template v-slot:activator="{ on }">
                                                     <v-btn color="primary" dark v-on="on" icon><v-icon bottom color="black">mdi-comment-multiple-outline</v-icon></v-btn>
                                                 </template>
@@ -63,21 +63,32 @@
     </div>
 </template>
 <script>
+import MappingTaskService from '../../services/mapping_task.service';
+
 export default {
+    props: {
+        project: Object,
+        selectedTask: Object
+    },
     data() {
         return {
+            totalRelatedTasks: 0,
+            relatedTasks: []
         }
     },
     methods: {
+        getRelatedTasks() {
+            MappingTaskService.get_related_tasks(
+                this.project.id, this.selectedTask.id, {"limit": 1000}
+            ).then((response) => {
+                this.relatedTasks = response.results
+            })
+        }
     },
     computed: {
-        selectedTask(){
-            return this.$store.state.MappingTasks.selectedTask
-        },
-        relatedTasks(){
-            console.log(this.$store.state.MappingTasks.relatedTasks)
-            return this.$store.state.MappingTasks.relatedTasks
-        },
+        // selectedTask(){
+        //     return this.$store.state.MappingTasks.selectedTask
+        // },
         loading(){
             return this.$store.state.MappingTasks.loading.details
         },
@@ -86,9 +97,13 @@ export default {
         }
     },
     created() {
-        this.$store.dispatch('MappingTasks/getMappingTargets', this.selectedTask.id)
-        // this.$store.dispatch('MappingTasks/getTasks',this.$route.params.projectid)
-    }
+        this.getRelatedTasks()
+    },
+     watch: {
+         selectedTask: function() {
+             this.getRelatedTasks()
+         }
+     }
 }
 </script>
 

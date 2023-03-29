@@ -44,11 +44,11 @@
             >
                 <!-- Display any general errors that the backend might want to display -->
                 <div 
-                    v-if="targets.errors.length > 0">
+                    v-if="errors.length > 0">
                     <v-alert 
                         dense
                         color="red lighten-2"
-                        v-for="(error, key) in targets.errors" :key="key">
+                        v-for="(error, key) in errors" :key="key">
                         {{error}}
                     </v-alert>
                 </div>
@@ -76,7 +76,7 @@
 
 
                         <!-- Warning against duplicates in ECL results -->
-                        <v-alert 
+                        <!-- v-alert
                             dense
                             color="red lighten-2"
                             v-if="targets.duplicates_in_ecl.length > 0">
@@ -87,10 +87,10 @@
                                     {{value}}
                                 </li>
                             </span>
-                        </v-alert>
+                        </v-alert -->
 
                         <!-- Existing queries -->
-                        <template v-for="item in targets.queries">
+                        <template v-for="item in queries">
                             <div v-if="(item.id == 'extra') && (formDisabled())" :key="item.id">
                                 
                             </div>
@@ -266,13 +266,13 @@
                                     label="Exclusies"
                                     hint="1 component ID per regel"
                                     rows="3"
-                                    v-model="selectedTask.exclusions.string" 
+                                    v-model="exclusions"
                                     auto-grow></v-textarea>
                                     <strong>Herkende codes:</strong><br>
-                                    <pre>{{selectedTask.exclusions.recognized}}</pre>
+                                    <pre>{{exclusions}}</pre>
                                     <br>
                                     
-                                        Op basis van dit veld zijn <strong>{{targets.excluded.length}}</strong> concepten geëxcludeerd.
+                                        Op basis van dit veld zijn <strong>{{exclusions.length}}</strong> concepten geëxcludeerd.
                                     
                                     <div v-if="loadExclusions">
                                         <v-data-table
@@ -321,10 +321,10 @@
                         <v-card ma-1>
                             <v-card-actions>
                                 <v-spacer></v-spacer>
-                                <v-btn color="blue darken-1" text @click="loadTargets()">Opnieuw laden</v-btn>
+                                <v-btn color="blue darken-1" text @click="getResults()">Opnieuw laden</v-btn>
                             </v-card-actions>
                             <!-- Warning against duplicates in ECL results -->
-                            <v-alert 
+                            <!-- v-alert
                                 dense
                                 color="red lighten-2"
                                 v-if="targets.duplicates_in_ecl.length > 0">
@@ -335,7 +335,7 @@
                                         {{value}}
                                     </li>
                                 </span>
-                            </v-alert>
+                            </v-alert -->
                             <v-card-text>
                                 <v-alert 
                                     dense
@@ -356,18 +356,14 @@
                                 <v-data-table
                                     multi-sort
                                     :headers="resultsHeaders"
-                                    :footer-props="pagination" 
-                                    :items-per-page="50"
-                                    :search="searchString"
-                                    :items="Object.values(targets.allResults)">
-
-                                    <template v-slot:top="{ pagination, options, updateOptions }">
-                                        <v-data-footer 
-                                        :pagination="pagination" 
-                                        :options="options"
-                                        @update:options="updateOptions"
-                                        items-per-page-text="$vuetify.dataTable.itemsPerPageText"/>
-                                    </template>
+                                    :items="results.data"
+                                    :loading="results.loading"
+                                    :server-items-length="results.props.pagination.itemsLength"
+                                    :footer-props="results.props"
+                                    @pagination="handlePagination(results, getResults)($event)"
+                                    @update:sort-by="handleSort(results)($event)"
+                                    @update:sort-desc="handleSortDesc(results, getResults)($event)"
+                                >
 
                                     <template v-slot:item.query="{ item }">
                                         <v-tooltip right>
@@ -397,7 +393,7 @@
                             </v-card-text>
                             <v-card-actions>
                                 <v-spacer></v-spacer>
-                                <v-btn color="blue darken-1" text @click="loadTargets()">Opnieuw laden</v-btn>
+                                <v-btn color="blue darken-1" text @click="getResults()">Opnieuw laden</v-btn>
                             </v-card-actions>
                         </v-card>
                     </v-tab-item>
@@ -407,7 +403,7 @@
                         <v-card ma-1>
                             <v-card-actions>
                                 <v-spacer></v-spacer>
-                                <v-btn color="blue darken-1" text @click="loadTargets()">Opnieuw laden</v-btn>
+                                <v-btn color="blue darken-1" text @click="getRules()">Opnieuw laden</v-btn>
                                 <v-btn 
                                     color="blue darken-1" 
                                     :disabled="formDisabled()" 
@@ -439,7 +435,7 @@
                                 Nog niet alle queries zijn klaar! Het scherm ververst automatisch.
                             </v-alert>
                             <!-- Warning against duplicates in ECL results -->
-                            <v-alert 
+                            <!--v-alert
                                 dense
                                 color="red lighten-2"
                                 v-if="targets.duplicates_in_ecl.length > 0">
@@ -450,22 +446,20 @@
                                         {{value}}
                                     </li>
                                 </span>
-                            </v-alert>
-                            
+                            </v-alert -->
+
                             <v-data-table
                                 multi-sort
-                                :headers="mappingHeaders"
-                                :footer-props="pagination" 
-                                :search="searchString"
-                                :items-per-page="50"
-                                :items="targets.mappings">
-                                <template v-slot:top="{ pagination, options, updateOptions }">
-                                    <v-data-footer 
-                                    :pagination="pagination" 
-                                    :options="options"
-                                    @update:options="updateOptions"
-                                    items-per-page-text="$vuetify.dataTable.itemsPerPageText"/>
-                                </template>
+                                :headers="rulesHeaders"
+                                :search="rulesSearch"
+                                :items="rules.data"
+                                :loading="rules.loading"
+                                :server-items-length="rules.props.pagination.itemsLength"
+                                :footer-props="rules.props"
+                                @pagination="handlePagination(rules, getRules)($event)"
+                                @update:sort-by="handleSort(rules)($event)"
+                                @update:sort-desc="handleSortDesc(rules, getRules)($event)"
+                            >
                                 <template v-slot:item.source.component_id="{ item }">
                                     <a :href="'https://terminologie.nictiz.nl/art-decor/snomed-ct?conceptId='+item.source.component_id" target="_blank">{{item.source.component_id}}</a>
                                 </template>
@@ -486,7 +480,12 @@
     </div>
 </template>
 <script>
+import MappingTaskService from '../../services/mapping_task.service';
 export default {
+    props: {
+        project: Object,
+        selectedTask: Object,
+    },
     data() {
         return {
             search: null,
@@ -498,15 +497,15 @@ export default {
             remoteExclusion: null,
             loadExclusions: false,
             resultsHeaders: [
-                { text: 'Query', value: 'query', sortable: false },
+                { text: 'Query', value: 'queryId', sortable: false },
                 // { text: 'QueryID', value: 'queryId' },
-                { text: 'ID', value: 'id' },
-                { text: 'Preferred term', value: 'pt', sortable: false },
+                { text: 'ID', value: 'code' },
+                { text: 'Preferred term', value: 'pt.term', sortable: false },
                 { text: 'Correlation', value: 'correlation' },
             ],
-            mappingHeaders: [
-                { text: 'ID', value: 'source.component_id', sortable: true },
-                { text: 'Component', value: 'source.component_title', sortable: true },
+            rulesHeaders: [
+                { text: 'ID', value: 'source.id', sortable: true },
+                { text: 'Component', value: 'source.title', sortable: true },
                 { text: 'Correlatie', value: 'correlation', sortable: true },
             ],
             excludedHeaders: [
@@ -521,24 +520,77 @@ export default {
             },
             interval_targets : null,
             interval_rules : null,
+
+            // Test
+
+            // Cleaned items
+            errors: [],  // Placeholder.
+            queryCount: 0,
+            queries: [],
+            exclusions: [],
+            targets: [],
+            // Paginated things.
+            results: {
+                loading: true,
+                sortBy: [],
+                search: '',
+                values_map: {
+                    "source.id": "source_component__component_id",
+                    "source.title": "source_component__component_title",
+                    "correlation": "mapcorrelation",
+                },
+                props: {
+                    pagination: {
+                        page: 1,
+                        itemsPerPage: 100,
+                        pageStart: 0,
+                        pageStop: 100,
+                        pageCount: 1,
+                        itemsLength: 0,
+                    },
+                    sortBy: [],
+                    showCurrentPage: true,
+                    showFirstLastPage: true,
+                    itemsPerPageOptions: [100, 200, 300, 1000]
+                },
+                data: []
+            },
+            rulesSearch: '',
+            rules: {
+                loading: true,
+                sortBy: [],
+                search: '',
+                values_map: {
+                    "source.id": "source_component__component_id",
+                    "source.title": "source_component__component_title",
+                    "correlation": "mapcorrelation",
+                },
+                props: {
+                    pagination: {
+                        page: 1,
+                        itemsPerPage: 100,
+                        pageStart: 0,
+                        pageStop: 100,
+                        pageCount: 1,
+                        itemsLength: 0,
+                    },
+                    sortBy: [],
+                    showCurrentPage: true,
+                    showFirstLastPage: true,
+                    itemsPerPageOptions: [100, 200, 300, 1000]
+                },
+                data: []
+            }
         }
-    },
-    watch: {
-        selectedTask (newCount, oldCount) {
-            console.log(`TaskID changed from ${oldCount.id} to ${newCount.id}. Resetting some values.`)
-            this.loadExclusions = false
-        }
-    },
-    methods: {
+     },
+     methods: {
         loadTargets () {
-            this.$store.dispatch('MappingTasks/getTaskDetails',this.selectedTask.id)
-            this.$store.dispatch('MappingTasks/getMappingTargets', this.selectedTask.id)
-            this.$store.dispatch('MappingTasks/getReverseExclusions', this.selectedTask.id)
+            // this.$store.dispatch('MappingTasks/getTaskDetails',this.selectedTask.id)
+            // this.$store.dispatch('MappingTasks/getMappingTargets', this.selectedTask.id)
+            // this.$store.dispatch('MappingTasks/getReverseExclusions', this.selectedTask.id)
         },
         saveQueries () {
             var payload = this.targets
-            delete payload.allResults
-            delete payload.mappings
             delete payload.excluded
             delete payload.exclusion_list
             payload.queries.forEach(function(query){ delete query.result });
@@ -548,6 +600,104 @@ export default {
                 this.$store.dispatch('MappingTasks/postMappingTargets',this.targets)
             )
             this.pollTargets()
+        },
+        handleSort(obj) {
+            return function(value) {
+                obj.props.sortBy = value
+            }
+        },
+        handleSortDesc(obj, updateFunc) {
+            return function(value) {
+                obj.sortBy = obj.props.sortBy.map((el, ind) => {
+
+                    if (value[ind]) {
+                        return obj.values_map[el]
+                    } else {
+                        return "-" + obj.values_map[el]
+                    }
+                })
+                updateFunc()
+            }
+        },
+        handlePagination(obj, updateFunc) {
+            return function(value) {
+                let changed = false
+                if (obj.props.pagination.page !== value.page) {
+                    obj.props.pagination.page = value.page
+                    changed = true
+                }
+                if (obj.props.pagination.itemsPerPage !== value.itemsPerPage) {
+                    obj.props.pagination.itemsPerPage = value.itemsPerPage
+                    changed = true
+                }
+
+                obj.props.pagination.pageStart = value.pageStart
+                obj.props.pagination.pageStop = value.pageStop
+
+
+                if (changed) {
+                    updateFunc()
+                }
+            }
+        },
+        deFilter(val) {
+            console.log(val)
+            console.log('^^^')
+        },
+        updateTaskDetails() {
+            this.getQueries()
+            this.getRules()
+            this.getResults()
+            this.getExclusions()
+        },
+        getQueries() {
+            MappingTaskService.get_parts(this.project.id, this.selectedTask.id).then((response) => {
+                this.queryCount = response.count
+                this.queries = response.results
+            })
+        },
+        getResults() {
+            this.results.loading = true
+            this.results.count = 0
+            this.results.data = []
+            let params = {
+                "limit": this.results.props.pagination.itemsPerPage,
+                "offset": (this.results.props.pagination.page - 1) * this.results.props.pagination.itemsPerPage,
+            }
+            if (this.results.sortBy) {
+                params["ordering"] = this.results.sortBy.join(",")
+            }
+
+            MappingTaskService.get_results(this.project.id, this.selectedTask.id).then((response) => {
+                this.results.loading = false
+                this.results.count = response.count
+                this.results.data = response.results
+                this.results.props.pagination.itemsLength = response.count
+                this.results.props.pagination.pageCount = Math.ceil(response.count / this.results.props.pagination.itemsPerPage)
+            })
+        },
+         getRules() {
+            this.rules.loading = true
+            this.rules.count = 0
+            this.rules.data = []
+            let params = {
+                "limit": this.rules.props.pagination.itemsPerPage,
+                "offset": (this.rules.props.pagination.page - 1) * this.rules.props.pagination.itemsPerPage,
+            }
+            if (this.rules.sortBy) {
+                params["ordering"] = this.rules.sortBy.join(",")
+            }
+            MappingTaskService.get_rules(this.project.id, this.selectedTask.id, params).then((response) => {
+                this.rules.loading = false
+                this.rules.data = response.results
+                this.rules.props.pagination.itemsLength = response.count
+                this.rules.props.pagination.pageCount = Math.ceil(response.count / this.rules.props.pagination.itemsPerPage)
+            })
+        },
+         getExclusions() {
+             MappingTaskService.get_exclusions(this.project.id, this.selectedTask.id).then((response) => {
+                this.exclusions = response.results
+            })
         },
         pollTargets () {
             clearInterval(this.interval_targets)
@@ -614,11 +764,12 @@ export default {
             this.pollRules()
         },
         formDisabled(){
-            if((this.user.id == this.selectedTask.user.id) && (this.user.groups.includes('mapping | edit mapping'))){
-                return false
-            }else{
-                return true
-            }
+            return false
+            // if((this.user.id == this.selectedTask.user.id) && (this.user.groups.includes('mapping | edit mapping'))){
+            //     return false
+            // }else{
+            //     return true
+            // }
         },
         createRemoteExclusion() {
             this.$store.dispatch('MappingTasks/addRemoteExclusion', {'task': this.selectedTask.id, 'targetComponent': this.selectedTask.component.id, 'sourceComponent': this.remoteExclusion})
@@ -627,17 +778,8 @@ export default {
         },
     },
     computed: {
-        project(){
-            return this.$store.state.MappingProjects.selectedProject
-        },
-        targets(){
-            return this.$store.state.MappingTasks.mappingTargets
-        },
         tasks(){
             return this.$store.state.MappingTasks.tasks
-        },
-        selectedTask(){
-            return this.$store.state.MappingTasks.selectedTask
         },
         reverseExclusions(){
             return this.$store.state.MappingTasks.reverseExclusions
@@ -655,7 +797,16 @@ export default {
             return this.$store.state.userData
         },
     },
-    mounted() {
+    watch: {
+        selectedTask () {
+            this.updateTaskDetails()
+        },
+        rulesSearch(val) {
+            console.log(val)
+        }
+    },
+     created() {
+         this.updateTaskDetails()
     }
 }
 </script>

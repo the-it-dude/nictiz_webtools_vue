@@ -13,9 +13,8 @@
 </template>
 <script>
 export default {
-    data() {
-        return {
-        }
+    props: {
+        selectedTask: Object
     },
     methods: {
         reset () {
@@ -23,10 +22,7 @@ export default {
         },
     },
     computed: {
-        selectedTask(){
-            return this.$store.state.MappingTasks.selectedTask
-        },
-        user(){
+        user() {
             return this.$store.state.userData
         }
     },

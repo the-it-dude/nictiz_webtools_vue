@@ -22,7 +22,7 @@
                         <v-row no-gutters>
                             <v-col cols=12>
                                 <BackToProjects />
-                                <TaskList :project="selectedProject" @selected="taskSelected($event)" />
+                                <TaskList :project="selectedProject" :selectedTask="selectedTask" @selected="taskSelected($event)" />
                             </v-col>
                         </v-row>
                     </v-col>
@@ -31,7 +31,7 @@
                     <v-col cols=5 v-if="selectedTask">
                         <v-row no-gutters>
                             <v-col cols=12>
-                                <ReverseMappings />
+                                <ReverseMappings :selectedTask="selectedTask" />
                             </v-col>
                         </v-row>
                         <v-row no-gutters>
@@ -86,30 +86,30 @@
                         <v-row no-gutters>
                             <v-col cols=12>
                                 <BackToProjects />
-                                <TaskList :project="selectedProject" @selected="taskSelected($event)" />
+                                <TaskList :project="selectedProject" :selectedTask="selectedTask" @selected="taskSelected($event)" />
                             </v-col>
                         </v-row>
                     </v-col>
 
-                    <v-col cols=5>
+                    <v-col cols=5 v-if="selectedTask">
                         <v-row no-gutters>
                             <v-col cols=12>
-                                <ResetTask />
+                                <ResetTask :selectedTask="selectedTask" />
                             </v-col>
                         </v-row>
                         <v-row no-gutters>
                             <v-col cols=12>
-                                <ReverseMappings />
+                                <ReverseMappings v-bind:selectedTask.sync="selectedTask" />
                             </v-col>
                         </v-row>
-                        <v-row no-gutters>
+                        <!-- v-row no-gutters>
                             <v-col cols=12>
                                 <Automap />
                             </v-col>
-                        </v-row>
+                        </v-row -->
                         <v-row no-gutters>
                             <v-col cols=12>
-                                <MappingEditorECL1 />
+                                <MappingEditorECL1 :project="selectedProject" v-bind:selectedTask.sync="selectedTask" />
                             </v-col>
                         </v-row>
                     </v-col>
@@ -117,10 +117,10 @@
                     <v-col cols=4 v-if="selectedTask">
                         <v-row no-gutters>
                             <v-col cols=12>
-                                <TaskDetails />
+                                <TaskDetails :project="selectedProject" v-bind:selectedTask.sync="selectedTask" />
                             </v-col>
                         </v-row>
-                        <v-row no-gutters>
+                        <!--v-row no-gutters>
                             <v-col cols=12>
                                 <AuditList />
                             </v-col>
@@ -144,7 +144,7 @@
                             <v-col cols=12>
                                 <Users />
                             </v-col>
-                        </v-row>
+                        </v-row -->
                     </v-col>
 
                 </v-row>
@@ -153,6 +153,7 @@
 </template>
 
 <script>
+import MappingProjectService from '../../services/mapping_project.service';
 import Automap from '@/components/Mapping/Automap';
 import TaskList from '@/components/Mapping/TaskList';
 import TaskDetails from '@/components/Mapping/TaskDetails';
@@ -183,16 +184,26 @@ export default {
         MappingEditorECL1,
         ResetTask,
     },
-    created(){
+    data () {
+        return {
+            selectedTask: null,
+        }
+    },
+    created () {
         //this.$store.dispatch('MappingTasks/getTasks', this.$route.params.projectid)
 
-        if(this.$route.params.projectid){
+        if (this.$route.params.projectid) {
             this.$store.dispatch('MappingProjects/getProjectDetails', this.$route.params.projectid)
-            this.$store.dispatch('MappingProjects/getProjectStatuses',this.$route.params.projectid)
-            this.$store.dispatch('MappingProjects/getProjectUsers',this.$route.params.projectid)
+            this.$store.dispatch('MappingProjects/getProjectStatuses', this.$route.params.projectid)
+            this.$store.dispatch('MappingProjects/getProjectUsers', this.$route.params.projectid)
         }
 
-        if(this.$route.params.taskid){
+        if (this.$route.params.taskid) {
+            if (this.selectedTask === null) {
+                // TODO: FIXME
+                this.getTaskDetails(parseInt(this.$route.params.taskid))
+            }
+
             // this.$store.dispatch('MappingTasks/getAutomap', this.$route.params.taskid)
             // this.$store.dispatch('MappingTasks/getTaskDetails', this.$route.params.taskid)
             // this.$store.dispatch('MappingTasks/getComments', this.$route.params.taskid)
@@ -204,18 +215,26 @@ export default {
         }
     },
     methods: {
-        taskSelected: function(taskId) {
-            this.$router.push({ path: `/mapping/Projects/${this.$route.params.projectid}/Task/`+taskId });
+        taskSelected: function(task) {
+            this.$router.push({ path: `/mapping/Projects/${this.$route.params.projectid}/Task/` + task.id })
+            this.selectedTask = task
+            this.$emit('update:selectedTask', this.selectedTask)
+        },
+        getTaskDetails: function(taskId) {
+            MappingProjectService.get_task(this.$route.params.projectid, taskId).then((response) => {
+                this.selectedTask = response.data
+                this.$emit('update:selectedTask', this.selectedTask)
+            })
         }
     },
     computed: {
-        selectedTask(){
-            return this.$store.state.MappingTasks.selectedTask
-        },
-        selectedProject(){
+        //selectedTask () {
+        //  return this.$store.state.MappingTasks.selectedTask
+        //},
+        selectedProject () {
             return this.$store.state.MappingProjects.selectedProject
         },
-        user(){
+        user () {
             return this.$store.state.userData
         }
     }

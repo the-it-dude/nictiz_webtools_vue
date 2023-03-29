@@ -88,13 +88,12 @@
                     style="max-height:800px"
                     class="overflow-y-auto pa-0"
                     >
-                    <v-list-item-group
-                        v-model=tasks>
+                    <v-list-item-group>
                         <v-list-item
-                            @click="selectTask(item.id)"
+                            @click="selectTask(item)"
                             v-for="item in tasks"
                             :key="item.id"
-                            :class="{'cyan lighten-3' : item.id == selectedTask.id}">
+                            :class="{'cyan lighten-3' : item.id == selectedTaskId}">
                             <v-list-item-content>
                                 <v-list-item-title
                                     v-html="item.component.title"></v-list-item-title>
@@ -133,7 +132,8 @@ import MappingProjectService from '../../services/mapping_project.service';
 
 export default {
     props:{
-        project: Object
+        project: Object,
+        selectedTask: Object
     },
     emits: ["selected"],
     data() {
@@ -164,9 +164,9 @@ export default {
         }
     },
     methods: {
-        selectTask(taskId){
+        selectTask(task){
             // this.$router.push({ path: `/mapping/Projects/${this.$route.params.projectid}/Task/`+taskId })
-            this.$emit("selected", taskId)
+            this.$emit("selected", task)
             // this.$store.dispatch('MappingTasks/getAutomap', taskid)
             // this.$store.dispatch('MappingAudits/getAudits',taskid)
             // this.$store.dispatch('MappingTasks/getTaskDetails',taskid)
@@ -229,12 +229,6 @@ export default {
         categories(){
             return this.$store.state.MappingProjects.selectedProject.categories
         },
-        selectedTask(){
-            return this.$store.state.MappingTasks.selectedTask
-        },
-        //tasks(){
-        // return this.$store.state.MappingTasks.tasks
-        //},
         loading(){
             return this.$store.state.MappingTasks.loading.tasklist
         },
@@ -243,6 +237,12 @@ export default {
         },
         numPages: function() {
             return Math.ceil(this.totalTasks / this.perPage)
+        },
+        selectedTaskId: function() {
+            if (this.selectedTask) {
+                return this.selectedTask.id
+            }
+            return null
         }
     },
     watch: {
