@@ -251,19 +251,21 @@ const state = {
         withCredentials: true
       }
       return axios
-      .post(context.rootState.baseUrl+'mapping/api/1.0/mapping_add_remote_exclusion/', {
+      .post(context.rootState.baseUrl + 'mapping/api/1.0/mapping_add_remote_exclusion/', {
         'payload' : payload,
       },auth)
       .then((response) => {
-        context.dispatch('getReverseExclusions', context.state.selectedTask.id)
+        context.dispatch('getReverseExclusions', payload["task"])
 
-        var commentPayload = {
-          'comment' : 'Exclusie voor ['+payload.targetComponent+'] toegevoegd.',
-          'taskId' : response.data,
+        if (response.data !== "0") {
+            var commentPayload = {
+              'comment' : 'Exclusie voor ['+payload.targetComponent+'] toegevoegd.',
+              'taskId' : response.data,
+            }
+            context.dispatch('postComment', commentPayload)
+
+            console.log(response)
         }
-        context.dispatch('postComment',commentPayload)
-
-        console.log(response)
         return true;
       })
     },
@@ -314,7 +316,7 @@ const state = {
         withCredentials: true
       }
       return axios
-      .post(context.rootState.baseUrl+'mapping/api/1.0/mapping_exclusions/', {
+      .post(context.rootState.baseUrl + 'mapping/api/1.0/mapping_exclusions/', {
         'payload' : payload,
       },auth)
     },

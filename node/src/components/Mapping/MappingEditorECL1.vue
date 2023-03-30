@@ -103,7 +103,7 @@
                                         <v-container dense>
                                             <v-row dense>
                                                 <v-col>
-                                                    <span v-if="item.id != 'extra'">
+                                                    <span>
                                                         <!-- Query ID = {{item.id}} -->
                                                         <v-alert 
                                                             dense
@@ -174,10 +174,10 @@
                                                         :items="project.correlation_options" 
                                                         label="Correlation *"></v-select>
                                                 </v-col>
-                                                <v-col cols=4 v-if="item.id != 'extra'">
+                                                <v-col cols=4>
                                                     Aantal concepten in resultaat: {{item.numResults}}
                                                 </v-col>
-                                                <v-col cols=4 v-if="item.id != 'extra'">
+                                                <v-col cols=4>
                                                     <v-checkbox
                                                         v-if="!formDisabled()"
                                                         v-model="item.delete"
@@ -193,11 +193,58 @@
                             </div>
                         </template>
 
+                        <template>
+                            <div>
+                              <v-card v-if="!formDisabled()">
+                                    <v-card-text>
+                                        <v-container>
+                                            <v-row dense>
+                                                <v-col v-if="!formDisabled()">
+                                                    <v-textarea
+                                                        dense
+                                                        outlined
+                                                        name="input-7-1"
+                                                        label="Beschrijving *"
+                                                        hint="Beschrijving van de query - zorg dat je duidelijk maakt wat het doel van deze ECL query is."
+                                                        v-model="newQuery.description"
+                                                        rows="2"
+                                                        auto-grow
+                                                        ></v-textarea>
+                                                </v-col>
+                                            </v-row>
+                                            <v-row dense>
+                                                <v-col>
+                                                    <v-textarea
+                                                        dense
+                                                        outlined
+                                                        label="Query *"
+                                                        hint="ECL query - snomed.org/ecl"
+                                                        rows="2"
+                                                        v-model="newQuery.query"
+                                                        auto-grow></v-textarea>
+                                                </v-col>
+                                            </v-row>
+                                            <v-row dense>
+                                                <v-col cols=4>
+                                                    <v-select
+                                                        dense
+                                                        outlined
+                                                        :items="project.correlation_options"
+                                                        v-model="newQuery.correlation_options"
+                                                        label="Correlation *"></v-select>
+                                                </v-col>
+                                            </v-row>
+                                        </v-container>
+                                    </v-card-text>
+                                </v-card>
+                            </div>
+                        </template>
+
                         
                         <v-card ma-1>
                             <v-card-actions>
                                 <v-spacer></v-spacer>
-                                <v-btn color="blue darken-1" text @click="loadTargets()">Opnieuw laden</v-btn>
+                                <v-btn color="blue darken-1" text @click="getQueries()">Opnieuw laden</v-btn>
                                 <v-btn color="blue darken-1" :disabled="formDisabled()" text @click="saveQueries()">Opslaan</v-btn>
                             </v-card-actions>
                         </v-card>
@@ -266,10 +313,10 @@
                                     label="Exclusies"
                                     hint="1 component ID per regel"
                                     rows="3"
-                                    v-model="exclusions"
+                                    v-model="exclusionsText"
                                     auto-grow></v-textarea>
                                     <strong>Herkende codes:</strong><br>
-                                    <pre>{{exclusions}}</pre>
+                                    <pre>{{exclusionsText}}</pre>
                                     <br>
                                     
                                         Op basis van dit veld zijn <strong>{{exclusions.length}}</strong> concepten geëxcludeerd.
@@ -279,16 +326,16 @@
                                             multi-sort
                                             :headers="excludedHeaders"
                                             :items-per-page="10"
-                                            :items="targets.excluded">
+                                            :items="exclusions">
                                             <template v-slot:item.excluded_by="{ item }">
-                                                <span v-if="item.exclusion_reason.length > 1">
+                                                <!-- span v-if="item.exclusion_reason.length > 1">
                                                     <li v-for="(value, key) in item.exclusion_reason" :key="key">
                                                         {{value.component.component_id}} - {{value.component.title}}
                                                     </li>
-                                                </span>
-                                                <span v-else>
-                                                    {{item.exclusion_reason[0].component.component_id}}
-                                                    {{item.exclusion_reason[0].component.title}}
+                                                </span -->
+                                                <span>
+                                                    {{item.component.id}}
+                                                    {{item.component.title}}
                                                 </span>
 
                                             </template>
@@ -308,8 +355,8 @@
                             
                             <v-card-actions>
                                 <v-spacer></v-spacer>
-                                <v-btn color="blue darken-1" text @click="loadTargets()">Opnieuw laden</v-btn>
-                                <v-btn color="blue darken-1" :disabled="formDisabled()" text @click="saveQueries()">Opslaan</v-btn>
+                                <v-btn color="blue darken-1" text @click="getExclusions()">Opnieuw laden</v-btn>
+                                <v-btn color="blue darken-1" :disabled="formDisabled()" text @click="saveExclusions()">Opslaan</v-btn>
                             </v-card-actions>
                         </v-card>
                     </v-tab-item>
@@ -509,8 +556,8 @@ export default {
                 { text: 'Correlatie', value: 'correlation', sortable: true },
             ],
             excludedHeaders: [
-                { text: 'ID', value: 'id', sortable: true },
-                { text: 'FSN', value: 'fsn.term', sortable: true },
+                { text: 'ID', value: 'key', sortable: true },
+                { text: 'FSN', value: 'component.id', sortable: true },
                 { text: 'Reden van exclusie', value: 'excluded_by', sortable: true },
             ],
             tab: null,
@@ -524,6 +571,12 @@ export default {
             // Test
 
             // Cleaned items
+            newQuery: {
+                "description": "",
+                "query": "",
+                "correlation_options": ""
+            },
+            exclusionsText: "",
             errors: [],  // Placeholder.
             queryCount: 0,
             queries: [],
@@ -590,19 +643,28 @@ export default {
             // this.$store.dispatch('MappingTasks/getReverseExclusions', this.selectedTask.id)
         },
         saveQueries () {
-            var payload = this.targets
-            delete payload.excluded
-            delete payload.exclusion_list
-            payload.queries.forEach(function(query){ delete query.result });
+            var payload = {
+                "query": this.newQuery.query,
+                "description": this.newQuery.description,
+                "correlation_options": this.newQuery.correlation_options,
+            }
+            console.log(payload)
+        },
+        saveExclusions() {
+            var payload = {
+                "id": this.selectedTask.id,
+                "exclusions": {
+                    "string": this.exclusionsText
+                }
+            }
 
             // First, save exclusions
-            this.$store.dispatch('MappingTasks/postMappingExclusions',this.selectedTask).then(
-                this.$store.dispatch('MappingTasks/postMappingTargets',this.targets)
+            this.$store.dispatch('MappingTasks/postMappingExclusions', payload).then(
+                this.getExclusions()
             )
-            this.pollTargets()
         },
         handleSort(obj) {
-            return function(value) {
+             return function(value) {
                 obj.props.sortBy = value
             }
         },
@@ -645,6 +707,7 @@ export default {
             console.log('^^^')
         },
         updateTaskDetails() {
+            this.exclusionsText = this.selectedTask.exclusion.join("\n")
             this.getQueries()
             this.getRules()
             this.getResults()
@@ -676,7 +739,7 @@ export default {
                 this.results.props.pagination.pageCount = Math.ceil(response.count / this.results.props.pagination.itemsPerPage)
             })
         },
-         getRules() {
+        getRules() {
             this.rules.loading = true
             this.rules.count = 0
             this.rules.data = []
@@ -694,9 +757,12 @@ export default {
                 this.rules.props.pagination.pageCount = Math.ceil(response.count / this.rules.props.pagination.itemsPerPage)
             })
         },
-         getExclusions() {
-             MappingTaskService.get_exclusions(this.project.id, this.selectedTask.id).then((response) => {
-                this.exclusions = response.results
+        getExclusions() {
+            this.exclusions = []
+            MappingTaskService.get_exclusions(this.project.id, this.selectedTask.id).then((response) => {
+                 this.exclusions = response.results
+                 console.log(response.results)
+                 // this.exclusionsText = resp
             })
         },
         pollTargets () {
@@ -772,9 +838,14 @@ export default {
             // }
         },
         createRemoteExclusion() {
-            this.$store.dispatch('MappingTasks/addRemoteExclusion', {'task': this.selectedTask.id, 'targetComponent': this.selectedTask.component.id, 'sourceComponent': this.remoteExclusion})
+            this.$store.dispatch('MappingTasks/addRemoteExclusion', {
+                'task': this.selectedTask.id,
+                'targetComponent': this.selectedTask.component.id,
+                'sourceComponent': this.remoteExclusion
+            })
+
             this.remoteExclusion = null
-            this.pollRules()
+            // this.pollRules()
         },
     },
     computed: {
