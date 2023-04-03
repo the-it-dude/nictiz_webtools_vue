@@ -1,11 +1,5 @@
 <template>
     <div>
-        <v-alert
-            border="left"
-            dense
-            color="green lighten-2"
-            type="info">{{ totalMappings }}
-        </v-alert>
         <v-container
             v-if="user.groups.includes('mapping | access') && (totalMappings > 0)"
             fluid>

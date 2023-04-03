@@ -36,27 +36,27 @@
                         </v-row>
                         <v-row no-gutters>
                             <v-col cols=12>
-                                <Automap />
+                                <Automap :project="selectedProject" v-bind:selectedTask.sync="selectedTask"  />
                             </v-col>
                         </v-row>
                         <v-row no-gutters>
                             <v-col cols=12>
-                                <TaskDetails />
+                                <TaskDetails :project="selectedProject" v-bind:selectedTask.sync="selectedTask"  />
                             </v-col>
                         </v-row>
                         <v-row no-gutters>
                             <v-col cols=12>
-                                <AuditList />
+                                <AuditList :project="selectedProject" v-bind:selectedTask.sync="selectedTask"  />
                             </v-col>
                         </v-row>
                         <v-row no-gutters>
                             <v-col cols=12>
-                                <CommentsList />
+                                <CommentsList :project="selectedProject" v-bind:selectedTask.sync="selectedTask"  />
                             </v-col>
                         </v-row>
                         <v-row no-gutters>
                             <v-col cols=12>
-                                <CommentsForm />
+                                <CommentsForm :project="selectedProject" v-bind:selectedTask.sync="selectedTask" @newcomment="newComment($event)" />
                             </v-col>
                         </v-row>
                         <v-row no-gutters>
@@ -102,11 +102,11 @@
                                 <ReverseMappings v-bind:selectedTask.sync="selectedTask" />
                             </v-col>
                         </v-row>
-                        <!-- v-row no-gutters>
+                        <v-row no-gutters>
                             <v-col cols=12>
-                                <Automap />
+                                <Automap :project="selectedProject" v-bind:selectedTask.sync="selectedTask" />
                             </v-col>
-                        </v-row -->
+                        </v-row>
                         <v-row no-gutters>
                             <v-col cols=12>
                                 <MappingEditorECL1 :project="selectedProject" v-bind:selectedTask.sync="selectedTask" />
@@ -120,31 +120,31 @@
                                 <TaskDetails :project="selectedProject" v-bind:selectedTask.sync="selectedTask" />
                             </v-col>
                         </v-row>
-                        <!--v-row no-gutters>
+                        <v-row no-gutters>
                             <v-col cols=12>
-                                <AuditList />
+                                <AuditList :project="selectedProject" v-bind:selectedTask.sync="selectedTask" />
                             </v-col>
                         </v-row>
                         <v-row no-gutters>
                             <v-col cols=12>
-                                <CommentsList />
+                                <CommentsList ref="commentsList" :project="selectedProject" v-bind:selectedTask.sync="selectedTask"  />
                             </v-col>
                         </v-row>
                         <v-row no-gutters>
                             <v-col cols=12>
-                                <CommentsForm />
+                                <CommentsForm :project="selectedProject" v-bind:selectedTask.sync="selectedTask" @newcomment="newComment($event)"  />
                             </v-col>
                         </v-row>
                         <v-row no-gutters>
                             <v-col cols=12>
-                                <Statuses />
+                                <Statuses :project="selectedProject" v-bind:selectedTask.sync="selectedTask" v-bind:statuses.sync="statuses" />
                             </v-col>
                         </v-row>
                         <v-row no-gutters>
                             <v-col cols=12>
-                                <Users />
+                                <Users :project="selectedProject" v-bind:selectedTask.sync="selectedTask" v-bind:users.sync="users" @userchange="newComment($event)"  />
                             </v-col>
-                        </v-row -->
+                        </v-row>
                     </v-col>
 
                 </v-row>
@@ -187,6 +187,8 @@ export default {
     data () {
         return {
             selectedTask: null,
+            statuses: [],
+            users: [],
         }
     },
     created () {
@@ -194,8 +196,10 @@ export default {
 
         if (this.$route.params.projectid) {
             this.$store.dispatch('MappingProjects/getProjectDetails', this.$route.params.projectid)
-            this.$store.dispatch('MappingProjects/getProjectStatuses', this.$route.params.projectid)
-            this.$store.dispatch('MappingProjects/getProjectUsers', this.$route.params.projectid)
+            //this.$store.dispatch('MappingProjects/getProjectStatuses', this.$route.params.projectid)
+            // this.$store.dispatch('MappingProjects/getProjectUsers', this.$route.params.projectid)
+            this.getStatuses()
+            this.getUsers()
         }
 
         if (this.$route.params.taskid) {
@@ -204,14 +208,6 @@ export default {
                 this.getTaskDetails(parseInt(this.$route.params.taskid))
             }
 
-            // this.$store.dispatch('MappingTasks/getAutomap', this.$route.params.taskid)
-            // this.$store.dispatch('MappingTasks/getTaskDetails', this.$route.params.taskid)
-            // this.$store.dispatch('MappingTasks/getComments', this.$route.params.taskid)
-            // this.$store.dispatch('MappingTasks/getReverse', this.$route.params.taskid)
-            // this.$store.dispatch('MappingTasks/getMappingTargets', this.$route.params.taskid)
-            // this.$store.dispatch('MappingAudits/getAudits', this.$route.params.taskid)
-            // this.$store.dispatch('MappingTasks/getReverseExclusions', this.$route.params.taskid)
-            // this.$store.dispatch('MappingTasks/getRelatedTasks', this.$route.params.taskid)
         }
     },
     methods: {
@@ -225,6 +221,19 @@ export default {
                 this.selectedTask = response.data
                 this.$emit('update:selectedTask', this.selectedTask)
             })
+        },
+        getStatuses: function() {
+            MappingProjectService.get_statuses(this.$route.params.projectid).then((response) => {
+                this.statuses = response
+            })
+        },
+        getUsers() {
+            MappingProjectService.get_users(this.$route.params.projectid).then((response) => {
+                this.users = response.results
+            })
+        },
+        newComment: function() {
+            this.$refs.commentsList.getComments(this.selectedProject.id, this.selectedTask.pk)
         }
     },
     computed: {

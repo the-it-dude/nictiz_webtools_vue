@@ -9,7 +9,7 @@
                     dense>
                     <span class="headline">Gebruiker</span>
                 </v-toolbar>
-                <v-select class="pa-1" :items="users" v-model="task.user.id" @change="changeUser(task.user.id)"></v-select>
+                <v-select class="pa-1" :items="users" v-model="selectedTask.user.id" @change="changeUser(selectedTask.user.id)"></v-select>
             </v-card>
             <v-card v-else>
                 <v-toolbar
@@ -19,7 +19,7 @@
                     <span class="headline">Gebruiker</span>
                 </v-toolbar>
                 <v-card-text align-center>
-                    {{task.user.name}}
+                    {{selectedTask.user.name}}
                 </v-card-text>
             </v-card>
         </v-container>
@@ -27,38 +27,42 @@
 </template>
 <script>
 export default {
+    props: {
+        project: Object,
+        selectedTask: Object,
+        users: Array,
+    },
+    emits: ["userchange"],
     data() {
         return {
+            loading: false,
             selectedUser: null,
         }
     },
     methods: {
-        changeUser (userid) {
+        changeUser (userId) {
             if(this.comment != ''){
                 alert("Je hebt de taak aan iemand anders toegewezen terwijl er nog een niet-opgeslagen commentaar aanwezig is. Vergeet niet om het commentaar op te slaan voor je verder gaat. De toewijzing is al wel doorgevoerd.")
             }
-            this.$store.dispatch('MappingTasks/changeUser', userid)
+            this.$store.dispatch('MappingTasks/changeUser', {
+                projectId: this.project.id,
+                taskId: this.selectedTask.id,
+                userId: userId
+            }).then(() => {
+                const that = this
+                setTimeout(function() {that.$emit("userchange")}, 1000)
+            })
         },
+
     },
-    computed: {
-        users(){
-            return this.$store.state.MappingProjects.users
-        },
-        task(){
-            return this.$store.state.MappingTasks.selectedTask
-        },
-        comment(){
+     computed: {
+         comment(){
             return this.$store.state.MappingTasks.commentDraft
-        },
-        loading(){
-            return this.$store.state.MappingProjects.loading
         },
         user(){
             return this.$store.state.userData
         }
     },
-    mounted() {
-    }
 }
 </script>
 

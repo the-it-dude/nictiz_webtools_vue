@@ -13,8 +13,12 @@ class RequestService {
         })
     }
 
+    base_url() {
+        return store.state.baseUrl + 'mapping/api/1.0/'
+    }
+
     project_url(projectId) {
-        return store.state.baseUrl + 'mapping/api/1.0/projects/' + projectId + '/'
+        return this.base_url() + 'projects/' + projectId + '/'
     }
 
     task_url(projectId, taskId, section) {

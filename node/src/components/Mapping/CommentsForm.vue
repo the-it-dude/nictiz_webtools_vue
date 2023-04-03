@@ -25,6 +25,11 @@
 import Tags from '@/components/Mapping/Tags';
 
 export default {
+    props: {
+        project: Object,
+        selectedTask: Object,
+    },
+    emits: ["newcomment"],
     components: {
         Tags,
     },
@@ -37,9 +42,12 @@ export default {
         submitcomment () {
             var payload = {
                 'comment' : this.comment,
-                'taskId' : this.task.id,
+                'taskId' : this.selectedTask.id,
             }
-            this.$store.dispatch('MappingTasks/postComment', payload)
+            this.$store.dispatch('MappingTasks/postComment', payload).then(() => {
+                const that = this
+                setTimeout(function() {that.$emit("newcomment")}, 1000)
+            })
             this.$store.dispatch('MappingTasks/saveDraftComment', '')
             this.comment = ''
         },
@@ -48,9 +56,6 @@ export default {
         },
     },
     computed: {
-        task(){
-            return this.$store.state.MappingTasks.selectedTask
-        },
         commentStore(){
             return this.$store.state.MappingTasks.commentDraft
         },
@@ -65,5 +70,3 @@ export default {
     }
 }
 </script>
-
- 

@@ -21,26 +21,50 @@
     </div>
 </template>
 <script>
+
+import MappingTaskService from '../../services/mapping_task.service';
+
 export default {
+    props: {
+        project: Object,
+        selectedTask: Object,
+    },
     data() {
         return {
+            automap: [],
+            loading: true,
         }
     },
     methods: {
-
+        getAutomap() {
+            this.automap = []
+            this.loading = true
+            MappingTaskService.get_automap(this.project.id, this.selectedTask.id, {}).then((response) => {
+                // Temporary exclude for missing token
+                if (response === "'access_token'") {
+                    this.automap = []
+                }
+                else if (response === undefined) {
+                    this.automap = []
+                } else {
+                    this.automap = response
+                }
+                this.loading = false
+            })
+        }
+    },
+    watch: {
+        selectedTask () {
+            this.getAutomap()
+        }
     },
     computed: {
-        automap(){
-            return this.$store.state.MappingTasks.automap
-        },
-        loading(){
-            return this.$store.state.MappingTasks.loading.comments
-        },
         user(){
             return this.$store.state.userData
         }
     },
     created() {
+        this.getAutomap()
         // this.$store.dispatch('MappingTasks/getAutomap', this.$route.params.taskid)
     }
 }

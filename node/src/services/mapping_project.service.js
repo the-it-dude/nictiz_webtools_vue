@@ -11,6 +11,16 @@ class MappingProjectService {
         return RequestService.get_response(RequestService.project_url(projectId) + 'tasks/', params)
     }
 
+    get_statuses(projectId, params) {
+        // Get project Status list
+        return RequestService.get_response(RequestService.base_url() + 'statuses/' + projectId + '/', params)
+    }
+
+    get_users(projectId, params) {
+        // Get project User list
+        return RequestService.get_response(RequestService.base_url() + 'users/' + projectId + '/', params)
+    }
+
 }
 
 export default new MappingProjectService();

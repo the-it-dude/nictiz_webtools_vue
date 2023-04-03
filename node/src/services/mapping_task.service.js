@@ -28,6 +28,23 @@ class MappingTaskService {
       return RequestService.get_response(RequestService.task_url(projectId, taskId, 'rules'), params)
     }
 
+    get_automap(projectId, taskId, params) {
+        console.log(projectId, taskId, params)
+        // TODO: Replace with new API.
+        return RequestService.get_response(RequestService.base_url() + "automap/" + taskId + "/", params)
+    }
+
+    get_audits(projectId, taskId, params) {
+        console.log(projectId, taskId, params)
+        // TODO: Replace with new API.
+        return RequestService.get_response(RequestService.base_url() + "audits/" + taskId + "/", params)
+    }
+
+    get_comments(projectId, taskId, params) {
+        console.log(projectId, taskId, params)
+        // TODO: Replace with new API.
+        return RequestService.get_response(RequestService.base_url() + "events_and_comments/" + taskId + "/", params)
+    }
 }
 
 export default new MappingTaskService();

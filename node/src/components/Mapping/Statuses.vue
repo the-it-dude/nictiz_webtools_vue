@@ -10,7 +10,7 @@
                 </v-toolbar>
                 <v-card-text align-center>
                     <span v-for="status in statuses" :key="status.id">
-                        <v-btn v-if="status.id == task.status.id" color="primary lighten-2" class="ma-1 pa-1">{{status.title}}</v-btn>
+                        <v-btn v-if="status.id == selectedTask.status.id" color="primary lighten-2" class="ma-1 pa-1">{{status.title}}</v-btn>
                         <v-btn v-else class="ma-1 pa-1" @click="changeStatus(status.id)">{{status.title}}</v-btn>
                     </span>
                 </v-card-text>
@@ -18,7 +18,7 @@
                     color="cyan darken-1"
                     dark
                     dense>
-                    <span>Huidige status is <strong>{{task.status.title}}</strong><br> {{task.status.description}}</span>
+                    <span>Huidige status is <strong>{{selectedTask.status.title}}</strong><br> {{selectedTask.status.description}}</span>
                 </v-toolbar>
             </v-card>
             <v-card v-else class="ma-0 pa-0">
@@ -29,7 +29,7 @@
                     <span class="headline">Status</span>
                 </v-toolbar>
                 <v-card-text align-center>
-                    {{task.status.title}}
+                    {{selectedTask.status.title}}
                 </v-card-text>
             </v-card>
         </v-container>
@@ -37,30 +37,34 @@
 </template>
 <script>
 export default {
-    data() {
+     props: {
+         project: Object,
+         selectedTask: Object,
+         statuses: Array,
+     },
+     data() {
         return {
+            loading: false
         }
     },
     methods: {
-        changeStatus (statusid) {
+        getStatuses() {
+
+        },
+        changeStatus (statusId) {
             if(this.comment != ''){
                 alert("Het commentaar is nog niet opgeslagen. Verwijder het commentaar, of sla het op voordat je verder gaat. De status is al wel gewijzigd.")
             }
-            this.$store.dispatch('MappingTasks/changeStatus', statusid)
+            this.$store.dispatch('MappingTasks/changeStatus', {
+                projectId: this.project.id,
+                taskId: this.selectedTask.id,
+                statusId: statusId,
+            })
         },
     },
     computed: {
-        statuses(){
-            return this.$store.state.MappingProjects.statuses
-        },
-        task(){
-            return this.$store.state.MappingTasks.selectedTask
-        },
         comment(){
             return this.$store.state.MappingTasks.commentDraft
-        },
-        loading(){
-            return this.$store.state.MappingProjects.loading
         },
         user(){
             return this.$store.state.userData

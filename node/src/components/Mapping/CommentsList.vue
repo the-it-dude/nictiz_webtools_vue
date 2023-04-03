@@ -133,13 +133,40 @@
     </div>
 </template>
 <script>
+import MappingTaskService from '../../services/mapping_task.service'
+
 export default {
+    props: {
+        project: Object,
+        selectedTask: Object
+    },
     data() {
         return {
             showEvents : false,
+            comments: [],
+            loading: false,
         }
     },
     methods: {
+        getComments(project_id, task_id) {
+            this.loading = true
+
+            if (project_id === undefined) {
+                project_id = this.project.id
+            }
+            if (task_id === undefined) {
+                task_id = this.selectedTask.id
+            }
+
+            MappingTaskService.get_comments(project_id, task_id, {}).then((response) => {
+                if (response === undefined) {
+                    this.comments = []
+                } else {
+                    this.comments = response
+                }
+                this.loading = false
+            })
+        },
         deleteComment(id){
             this.$store.dispatch('MappingTasks/deleteComment', id)
         },
@@ -152,18 +179,18 @@ export default {
         }
     },
     computed: {
-        comments(){
-            return this.$store.state.MappingTasks.selectedTaskComments
-        },
-        loading(){
-            return this.$store.state.MappingTasks.loading.comments
-        },
         user(){
             return this.$store.state.userData
         }
     },
     created() {
-    }
+        this.getComments()
+    },
+    watch: {
+        selectedTask () {
+            this.getComments()
+        }
+    },
 }
 </script>
 

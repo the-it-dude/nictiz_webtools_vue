@@ -56,7 +56,7 @@
                             small @click="auditDetails = 'true'">Toon hits</v-btn>
                         <v-spacer/>
                         <v-btn small @click="triggerAudit(selectedTask.id)">Trigger audit</v-btn>
-                        <v-btn small @click="getAudits(selectedTask.id)">Vernieuw QA hits</v-btn>
+                        <v-btn small @click="getAudits()">Vernieuw QA hits</v-btn>
                     </v-card-actions>
                 </v-card-text>
             </v-card>
@@ -94,7 +94,7 @@
                         small @click="auditDetails = 'true'">Toon hits</v-btn>
                     <v-spacer/>
                     <v-btn small @click="triggerAudit(selectedTask.id)">Trigger audit</v-btn>
-                    <v-btn small @click="getAudits(selectedTask.id)">Vernieuw QA hits</v-btn>
+                    <v-btn small @click="getAudits()">Vernieuw QA hits</v-btn>
                 </v-card-actions>
                 <v-card-title v-if="backgroundProcesses.active">
                     Actieve achtergrondprocessen
@@ -222,7 +222,12 @@
     </div>
 </template>
 <script>
+import MappingTaskService from '../../services/mapping_task.service'
 export default {
+    props: {
+        selectedTask: Object,
+        project: Object,
+    },
     data() {
         return {
             auditDetails: false,
@@ -245,6 +250,8 @@ export default {
                 type: [],
             },
             interval_process_check: null,
+            loading: false,
+            audits: [],
         }
     },
     methods: {
@@ -261,13 +268,25 @@ export default {
             this.$store.dispatch('MappingAudits/trigger', id)
             this.getAudits(id)
         },
-        getAudits(id){
-            this.$store.dispatch('MappingAudits/getAudits', id)
-            this.$store.dispatch('MappingAudits/getBackgroundProcesses')
-            this.pollProcesses()
+        getAudits(){
+            this.loading = true
+            this.audits = []
+            MappingTaskService.get_audits(this.project.id, this.selectedTask.id, {}).then((response) => {
+                if (response === undefined) {
+                    this.audits = []
+                } else {
+                    this.audits = response
+                }
+
+                this.loading = false
+            })
+            // this.$store.dispatch('MappingAudits/getAudits', id)
+            // this.$store.dispatch('MappingAudits/getBackgroundProcesses')
+            // this.pollProcesses()
+
         },
         columnValueList(val) {
-           return this.hits.map(d => d[val]).sort()
+           return this.audits.map(d => d[val]).sort()
         },
         pollProcesses () {
             clearInterval(this.interval_process_check)
@@ -287,12 +306,6 @@ export default {
         },
     },
     computed: {
-        selectedTask(){
-            return this.$store.state.MappingTasks.selectedTask
-        },
-        audits(){
-            return this.$store.state.MappingAudits.audits
-        },
         backgroundProcesses(){
             return this.$store.state.MappingAudits.backgroundProcesses
         },
@@ -306,27 +319,22 @@ export default {
                 return item.ignore
             })
         },
-        hits(){
-            return this.$store.state.MappingAudits.audits
-        },
         filteredHits() {
-            return this.hits.filter(d => {
+            return this.audits.filter(d => {
                 return Object.keys(this.filters).every(f => {
                     return this.filters[f].length < 1 || this.filters[f].includes(d[f])
                 })
             })
-        },
-        loading(){
-            return this.$store.state.MappingAudits.loading
         },
         user(){
             return this.$store.state.userData
         }
     },
     mounted() {
-        this.$store.dispatch('MappingAudits/getAudits',this.selectedTask.id)
-        this.$store.dispatch('MappingAudits/getBackgroundProcesses')
-        this.pollProcesses()
+        this.getAudits()
+        // this.$store.dispatch('MappingAudits/getAudits',this.selectedTask.id)
+        // this.$store.dispatch('MappingAudits/getBackgroundProcesses')
+        // this.pollProcesses()
     }
 }
 </script>

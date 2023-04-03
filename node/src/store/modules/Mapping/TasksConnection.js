@@ -405,7 +405,7 @@ const state = {
         'task' : payload.taskId,
       },auth)
       .then(() => {
-        context.dispatch('getComments',context.state.selectedTask.id)
+        // context.dispatch('getComments',context.state.selectedTask.id)
         return true;
         }
       )
@@ -428,33 +428,35 @@ const state = {
         headers: {'X-CSRFToken' : Vue.$cookies.get('csrftoken')},
         withCredentials: true
       }
+      console.log("data", payload)
+
       axios.post(
-        context.rootState.baseUrl + 'mapping/api/1.0/users/' + context.state.selectedTask.project.id + "/", {
-          'user': payload,
-          'task': context.state.selectedTask.id,
+        context.rootState.baseUrl + 'mapping/api/1.0/users/' + payload.projectId + "/", {
+          'user': payload.userId,
+          'task': payload.taskId,
         },
         auth
       ).then(() => {
-        context.dispatch('getTaskDetails', context.state.selectedTask.id)
-        context.dispatch('getTasks', context.state.selectedTask.project.id)
-        context.dispatch('getComments', context.state.selectedTask.id)
+        // context.dispatch('getTaskDetails', payload.taskId)
+        // context.dispatch('getTasks', payload.taskId)
+        // context.dispatch('getComments', payload.taskId)
         return true;
       })
     },
-    changeStatus:(context, payload) => {
+    changeStatus:(context, statusId, taskId) => {
       const auth = {
         headers: {'X-CSRFToken' : Vue.$cookies.get('csrftoken')},
         withCredentials: true
       }
       axios
       .post(context.rootState.baseUrl+'mapping/api/1.0/statuses/', {
-        'status' : payload,
-        'task' : context.state.selectedTask.id,
+        'status' : statusId,
+        'task' : taskId,
       },auth)
       .then(() => {
-        context.dispatch('getTaskDetails',context.state.selectedTask.id)
-        context.dispatch('getTasks',context.state.selectedTask.project.id)
-        context.dispatch('getComments',context.state.selectedTask.id)
+        context.dispatch('getTaskDetails', taskId)
+        context.dispatch('getTasks', taskId)
+        context.dispatch('getComments', taskId)
         return true;
         }
       )

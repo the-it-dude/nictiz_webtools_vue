@@ -319,14 +319,20 @@
                                     <pre>{{exclusionsText}}</pre>
                                     <br>
                                     
-                                        Op basis van dit veld zijn <strong>{{exclusions.length}}</strong> concepten geëxcludeerd.
+                                        Op basis van dit veld zijn <strong>{{exclusionResults.props.pagination.itemsLength}}</strong> concepten geëxcludeerd.
                                     
                                     <div v-if="loadExclusions">
                                         <v-data-table
                                             multi-sort
                                             :headers="excludedHeaders"
-                                            :items-per-page="10"
-                                            :items="exclusions">
+                                            :items="exclusionResults.data"
+                                            :loading="exclusionResults.loading"
+                                            :server-items-length="exclusionResults.props.pagination.itemsLength"
+                                            :footer-props="exclusionResults.props"
+                                            @pagination="handlePagination(exclusionResults, getExclusions)($event)"
+                                            @update:sort-by="handleSort(exclusionResults)($event)"
+                                            @update:sort-desc="handleSortDesc(exclusionResults, getExclusions)($event)"
+                                        >
                                             <template v-slot:item.excluded_by="{ item }">
                                                 <!-- span v-if="item.exclusion_reason.length > 1">
                                                     <li v-for="(value, key) in item.exclusion_reason" :key="key">
@@ -338,13 +344,6 @@
                                                     {{item.component.title}}
                                                 </span>
 
-                                            </template>
-                                            <template v-slot:top="{ pagination, options, updateOptions }">
-                                                <v-data-footer 
-                                                :pagination="pagination" 
-                                                :options="options"
-                                                @update:options="updateOptions"
-                                                items-per-page-text="$vuetify.dataTable.itemsPerPageText"/>
                                             </template>
                                         </v-data-table>
                                     </div>
@@ -633,6 +632,31 @@ export default {
                     itemsPerPageOptions: [100, 200, 300, 1000]
                 },
                 data: []
+            },
+            exclusionResults: {
+                loading: true,
+                sortBy: [],
+                search: '',
+                values_map: {
+                    "key": "id",
+                    "component.id": "component_id",
+                    "excluded_by": "mapcorrelation",
+                },
+                props: {
+                    pagination: {
+                        page: 1,
+                        itemsPerPage: 10,
+                        pageStart: 0,
+                        pageStop: 10,
+                        pageCount: 1,
+                        itemsLength: 0,
+                    },
+                    sortBy: [],
+                    showCurrentPage: true,
+                    showFirstLastPage: true,
+                    itemsPerPageOptions: [10, 100, 200, 300, 1000]
+                },
+                data: []
             }
         }
      },
@@ -758,11 +782,22 @@ export default {
             })
         },
         getExclusions() {
-            this.exclusions = []
-            MappingTaskService.get_exclusions(this.project.id, this.selectedTask.id).then((response) => {
-                 this.exclusions = response.results
-                 console.log(response.results)
-                 // this.exclusionsText = resp
+
+            this.exclusionResults.loading = true
+            this.exclusionResults.count = 0
+            this.exclusionResults.data = []
+            let params = {
+                "limit": this.exclusionResults.props.pagination.itemsPerPage,
+                "offset": (this.exclusionResults.props.pagination.page - 1) * this.exclusionResults.props.pagination.itemsPerPage,
+            }
+            if (this.rules.sortBy) {
+                params["ordering"] = this.exclusionResults.sortBy.join(",")
+            }
+            MappingTaskService.get_exclusions(this.project.id, this.selectedTask.id, params).then((response) => {
+                this.exclusionResults.loading = false
+                this.exclusionResults.data = response.results
+                this.exclusionResults.props.pagination.itemsLength = response.count
+                this.exclusionResults.props.pagination.pageCount = Math.ceil(response.count / this.exclusionResults.props.pagination.itemsPerPage)
             })
         },
         pollTargets () {
