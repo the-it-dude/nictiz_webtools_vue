@@ -73,6 +73,12 @@
                                 <v-btn color="blue darken-1" :disabled="formDisabled()" text @click="saveQueries()">Opslaan</v-btn>
                             </v-card-actions>
                         </v-card>
+                        <v-alert
+                            dense
+                            color="red lighten-2"
+                            v-if="queryUpdateError">
+                            {{ queryUpdateError }}
+                        </v-alert>
 
 
                         <!-- Warning against duplicates in ECL results -->
@@ -113,9 +119,9 @@
                                                         </v-alert>
                                                         <v-alert 
                                                             dense
-                                                            color="red lighten-2"
+                                                            color="yellow lighten-2"
                                                             v-if="!item.finished">
-                                                            Query loopt nog, of is overleden zonder foutmelding.
+                                                            Query loopt nog (volgede update in {{ queryRetryTimer }}s).
                                                         </v-alert>
                                                         <!-- <v-alert 
                                                             dense
@@ -185,7 +191,6 @@
                                                         dense   
                                                         ></v-checkbox>
                                                 </v-col>
-                                                        <!-- {{item.failed}} {{item.finished}} {{item.error}} -->
                                             </v-row>
                                         </v-container>
                                     </v-card-text>
@@ -230,7 +235,7 @@
                                                         dense
                                                         outlined
                                                         :items="project.correlation_options"
-                                                        v-model="newQuery.correlation_options"
+                                                        v-model="newQuery.correlation"
                                                         label="Correlation *"></v-select>
                                                 </v-col>
                                             </v-row>
@@ -527,6 +532,7 @@
 </template>
 <script>
 import MappingTaskService from '../../services/mapping_task.service';
+
 export default {
     props: {
         project: Object,
@@ -573,11 +579,15 @@ export default {
             newQuery: {
                 "description": "",
                 "query": "",
-                "correlation_options": ""
+                "correlation": ""
             },
             exclusionsText: "",
             errors: [],  // Placeholder.
             queryCount: 0,
+            loading: false,
+            queryUpdateError: null,
+            queryRetryInterval: null,
+            queryRetryTimer: 10,
             queries: [],
             exclusions: [],
             targets: [],
@@ -667,15 +677,52 @@ export default {
             // this.$store.dispatch('MappingTasks/getReverseExclusions', this.selectedTask.id)
         },
         saveQueries () {
-            var payload = {
-                "query": this.newQuery.query,
-                "description": this.newQuery.description,
-                "correlation_options": this.newQuery.correlation_options,
+            let payload = {
+                "targets": {
+                    "queries": [
+                        {
+                            "id": "extra",
+                            "description": this.newQuery.description,
+                            "query": this.newQuery.query,
+                            "correlation": this.newQuery.correlation,
+                        }
+                    ].concat(
+                        this.queries.map((q) => {
+                            return {
+                                "id": q.id,
+                                "description": q.description,
+                                "query": q.query,
+                                "correlation": q.correlation,
+                                "delete": q.delete
+                            }
+                        })
+                    ),
+                    "queries_unfinished": false,
+                    "duplicates_in_ecl": [],
+                    "errors": [],
+                    "mappings_unfinished": false,
+                },
+                "task": this.selectedTask.id,
             }
-            console.log(payload)
+            let that = this
+            this.queryUpdateError = null;
+            MappingTaskService
+                .post_parts(this.project.id, this.selectedTask.id, payload)
+                .then((response) => {
+                    if (typeof response.data === 'string' || response.data instanceof String) {
+                        if (response.data.includes("Geen toegang")) {
+                            // ALERT
+                        }
+                    } else {
+                        that.getQueries()
+                    }
+                })
+                .catch(function (error) {
+                    that.queryUpdateError = error.response.data.error
+                });
         },
-        saveExclusions() {
-            var payload = {
+         saveExclusions() {
+             var payload = {
                 "id": this.selectedTask.id,
                 "exclusions": {
                     "string": this.exclusionsText
@@ -738,10 +785,35 @@ export default {
             this.getExclusions()
         },
         getQueries() {
+            this.loading = true
+            this.newQuery.query = ""
+            this.newQuery.description = ""
+            this.newQuery.correlation = ""
+            let that = this
             MappingTaskService.get_parts(this.project.id, this.selectedTask.id).then((response) => {
+                this.loading = false
                 this.queryCount = response.count
                 this.queries = response.results
+                this.queries.forEach((query) => {
+                    if (query.id && !query.finished) {
+                        that.pollQueryDetails(query)
+                    }
+                })
             })
+        },
+        pollQueryDetails(query) {
+            query.retryNeeded = true
+            this.queryRetryTimer = 10
+            let that = this
+            clearInterval(this.queryRetryInterval)
+            this.queryRetryInterval = setInterval(() => {
+                that.queryRetryTimer -= 1
+                console.log(that.queryRetryTimer, query.id)
+                if (that.queryRetryTimer == 0) {
+                    clearInterval(that.queryRetryInterval)
+                    that.getQueries()
+                }
+            }, 1000)
         },
         getResults() {
             this.results.loading = true
@@ -895,9 +967,6 @@ export default {
         },
         searchResults(){
             return this.$store.state.MappingTasks.searchResults
-        },
-        loading(){
-            return this.$store.state.MappingTasks.loading.eclqueries
         },
         user(){
             return this.$store.state.userData

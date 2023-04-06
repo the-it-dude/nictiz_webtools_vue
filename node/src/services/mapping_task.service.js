@@ -6,6 +6,10 @@ class MappingTaskService {
         return RequestService.get_response(RequestService.task_url(projectId, taskId, 'parts'), params)
     }
 
+    post_parts(projectId, taskId, payload) {
+        return RequestService.post_response(RequestService.base_url() + "mappings/", payload)
+    }
+
     get_reverse_mappings(projectId, taskId, params) {
         // Get list of reverse mappings
         return RequestService.get_response(RequestService.task_url(projectId, taskId, 'reverse-mappings'), params)

@@ -1,4 +1,5 @@
 import axios from 'axios'
+import Vue from 'vue'
 import store from '@/store/index.js'
 
 
@@ -11,6 +12,15 @@ class RequestService {
         ).then((response) => {
             return response.data
         })
+    }
+
+    post_response(url, payload) {
+        const auth = {
+            headers: {'X-CSRFToken' : Vue.$cookies.get('csrftoken')},
+            withCredentials: true
+        }
+        return axios
+            .post(url, payload, auth)
     }
 
     base_url() {

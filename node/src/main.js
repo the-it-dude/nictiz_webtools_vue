@@ -44,7 +44,8 @@ axios.interceptors.response.use((response) => {
       return Promise.reject(error);
   }
 
-  if (error.response.status === 403 && !originalRequest._retry) {
+  console.log(error.response)
+  if (error.response.status === 403 && !originalRequest._retry && 0) {
     console.error('will try to refresh')
       originalRequest._retry = true;
       const tokenStorage = JSON.parse(localStorage.getItem('user'));
