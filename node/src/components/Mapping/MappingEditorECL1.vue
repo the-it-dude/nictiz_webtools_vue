@@ -803,15 +803,15 @@ export default {
         },
         pollQueryDetails(query) {
             query.retryNeeded = true
-            this.queryRetryTimer = 10
+            this.queryRetryTimer = 5
             let that = this
             clearInterval(this.queryRetryInterval)
             this.queryRetryInterval = setInterval(() => {
                 that.queryRetryTimer -= 1
-                console.log(that.queryRetryTimer, query.id)
                 if (that.queryRetryTimer == 0) {
                     clearInterval(that.queryRetryInterval)
                     that.getQueries()
+                    that.getResults()
                 }
             }, 1000)
         },
