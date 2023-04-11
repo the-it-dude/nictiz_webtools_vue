@@ -203,7 +203,6 @@ export default {
         }
 
         if (this.$route.params.taskid) {
-            console.log(this.$route.params.taskid, this.selectedTask, (this.selectedTask === null))
             if (this.selectedTask === null) {
                 // TODO: FIXME
                 this.getTaskDetails(this.$route.params.taskid)
