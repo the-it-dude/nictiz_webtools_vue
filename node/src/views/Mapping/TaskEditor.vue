@@ -22,7 +22,7 @@
                         <v-row no-gutters>
                             <v-col cols=12>
                                 <BackToProjects />
-                                <TaskList :project="selectedProject" :selectedTask="selectedTask" @selected="taskSelected($event)" />
+                                <TaskList :project="selectedProject" :selectedTask="selectedTask" v-bind:users.sync="users" v-bind:statuses.sync="statuses"  @selected="taskSelected($event)" />
                             </v-col>
                         </v-row>
                     </v-col>
@@ -61,12 +61,12 @@
                         </v-row>
                         <v-row no-gutters>
                             <v-col cols=12>
-                                <Statuses />
+                                <Statuses :project="selectedProject" v-bind:selectedTask.sync="selectedTask" v-bind:statuses.sync="statuses"  />
                             </v-col>
                         </v-row>
                         <v-row no-gutters>
                             <v-col cols=12>
-                                <Users />
+                                <Users :project="selectedProject" v-bind:selectedTask.sync="selectedTask" v-bind:users.sync="users" @userchange="newComment($event)"   />
                             </v-col>
                         </v-row>
                     </v-col>
@@ -86,7 +86,7 @@
                         <v-row no-gutters>
                             <v-col cols=12>
                                 <BackToProjects />
-                                <TaskList :project="selectedProject" :selectedTask="selectedTask" @selected="taskSelected($event)" />
+                                <TaskList :project="selectedProject" :selectedTask="selectedTask" v-bind:users.sync="users" v-bind:statuses.sync="statuses" @selected="taskSelected($event)" />
                             </v-col>
                         </v-row>
                     </v-col>
@@ -203,9 +203,10 @@ export default {
         }
 
         if (this.$route.params.taskid) {
+            console.log(this.$route.params.taskid, this.selectedTask, (this.selectedTask === null))
             if (this.selectedTask === null) {
                 // TODO: FIXME
-                this.getTaskDetails(parseInt(this.$route.params.taskid))
+                this.getTaskDetails(this.$route.params.taskid)
             }
 
         }
@@ -218,7 +219,7 @@ export default {
         },
         getTaskDetails: function(taskId) {
             MappingProjectService.get_task(this.$route.params.projectid, taskId).then((response) => {
-                this.selectedTask = response.data
+                this.selectedTask = response
                 this.$emit('update:selectedTask', this.selectedTask)
             })
         },

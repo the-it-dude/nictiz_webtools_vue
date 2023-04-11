@@ -133,7 +133,9 @@ import MappingProjectService from '../../services/mapping_project.service';
 export default {
     props:{
         project: Object,
-        selectedTask: Object
+        selectedTask: Object,
+        users: Array,
+        statuses: Array,
     },
     emits: ["selected"],
     data() {
@@ -200,6 +202,9 @@ export default {
             if (this.filterOnCategory && this.filterCategory) {
                 params["category"] = this.filterCategory
             }
+            if (this.filterOnID && this.filterID) {
+                params["search"] = this.filterID
+            }
 
             this.loadingTasks = true
             this.tasks = []
@@ -220,12 +225,6 @@ export default {
         }
     },
     computed: {
-        users(){
-            return this.$store.state.MappingProjects.users
-        },
-        statuses(){
-            return this.$store.state.MappingProjects.statuses
-        },
         categories(){
             return this.$store.state.MappingProjects.selectedProject.categories
         },
@@ -251,7 +250,10 @@ export default {
         filterOnStatus: filterBool("filterStatus"),
         filterStatus: filterVal("filterStatus"),
         filterOnCategory: filterBool("filterCategory"),
-        filterCategory: filterVal("filterCategory")
+        filterCategory: filterVal("filterCategory"),
+        filterOnId: filterBool("filterID"),
+        filterID: filterVal("filterID")
+
     },
     created() {
         this.getTasks()
