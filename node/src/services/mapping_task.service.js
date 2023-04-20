@@ -32,6 +32,16 @@ class MappingTaskService {
       return RequestService.get_response(RequestService.task_url(projectId, taskId, 'rules'), params)
     }
 
+    create_rules(projectId, taskId, params) {
+      // TODO: Replace with new API.
+      return RequestService.get_response(RequestService.base_url() + "mappings_ecl_to_rules/" + taskId + "/", params)
+    }
+
+    delete_rules(projectId, taskId, params) {
+      // TODO: Replace with new API.
+      return RequestService.get_response(RequestService.base_url() + "remove_rules/" + taskId + "/", params)
+    }
+
     get_automap(projectId, taskId, params) {
         console.log(projectId, taskId, params)
         // TODO: Replace with new API.

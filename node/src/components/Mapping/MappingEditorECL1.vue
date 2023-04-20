@@ -308,7 +308,7 @@
                             <v-card-text>
                                 <v-card-actions>
                                     <v-spacer></v-spacer>
-                                    <v-btn color="blue darken-1" text @click="loadTargets()">Opnieuw laden</v-btn>
+                                    <v-btn color="blue darken-1" text @click="getExclusions()">Opnieuw laden</v-btn>
                                     <v-btn color="blue darken-1" :disabled="formDisabled()" text @click="saveQueries()">Opslaan</v-btn>
                                 </v-card-actions>
                                 <v-textarea
@@ -399,7 +399,7 @@
                                 Resultaten
                                 <v-spacer></v-spacer>
                                 <v-text-field
-                                    v-model="searchString"
+                                    v-model="resultsSearch"
                                     append-icon="mdi-magnify"
                                     label="Zoeken (alleen op SCTID / QueryID)"
                                 ></v-text-field>
@@ -473,7 +473,7 @@
                                 Regels
                                 <v-spacer></v-spacer>
                                 <v-text-field
-                                    v-model="searchString"
+                                    v-model="rulesSearch"
                                     append-icon="mdi-magnify"
                                     label="Zoeken"
                                 ></v-text-field>
@@ -482,8 +482,14 @@
                             <v-alert 
                                 dense
                                 color="red lighten-2"
-                                v-if="targets.mappings_unfinished">
-                                Nog niet alle queries zijn klaar! Het scherm ververst automatisch.
+                                v-if="rules.error">
+                                {{ rules.error  }}
+                            </v-alert>
+                            <v-alert 
+                                dense
+                                color="yellow lighten-2"
+                                v-if="rules.updating">
+                                Bezig met regels aanmaken.
                             </v-alert>
                             <!-- Warning against duplicates in ECL results -->
                             <!--v-alert
@@ -562,7 +568,7 @@ export default {
             ],
             excludedHeaders: [
                 { text: 'ID', value: 'key', sortable: true },
-                { text: 'FSN', value: 'component.id', sortable: true },
+                { text: 'FSN', value: 'fsn', sortable: true },
                 { text: 'Reden van exclusie', value: 'excluded_by', sortable: true },
             ],
             tab: null,
@@ -592,6 +598,8 @@ export default {
             exclusions: [],
             targets: [],
             // Paginated things.
+            resultsSearch: '',
+            resultsSearchTimeout: null,
             results: {
                 loading: true,
                 sortBy: [],
@@ -618,10 +626,13 @@ export default {
                 data: []
             },
             rulesSearch: '',
+            rulesSearchTimeout: null,
             rules: {
                 loading: true,
+                updating: false,
                 sortBy: [],
                 search: '',
+                error: '',
                 values_map: {
                     "source.id": "source_component__component_id",
                     "source.title": "source_component__component_title",
@@ -643,6 +654,8 @@ export default {
                 },
                 data: []
             },
+            exclusionSearchTimeout: null,
+            exclusionSearch: '',
             exclusionResults: {
                 loading: true,
                 sortBy: [],
@@ -826,8 +839,11 @@ export default {
             if (this.results.sortBy) {
                 params["ordering"] = this.results.sortBy.join(",")
             }
+            if (this.resultsSearch.length) {
+                params["search"] = this.resultsSearch
+            }
 
-            MappingTaskService.get_results(this.project.id, this.selectedTask.id).then((response) => {
+            MappingTaskService.get_results(this.project.id, this.selectedTask.id, params).then((response) => {
                 this.results.loading = false
                 this.results.count = response.count
                 this.results.data = response.results
@@ -846,6 +862,10 @@ export default {
             if (this.rules.sortBy) {
                 params["ordering"] = this.rules.sortBy.join(",")
             }
+            if (this.rulesSearch.length) {
+                params["search"] = this.rulesSearch
+            }
+
             MappingTaskService.get_rules(this.project.id, this.selectedTask.id, params).then((response) => {
                 this.rules.loading = false
                 this.rules.data = response.results
@@ -862,9 +882,10 @@ export default {
                 "limit": this.exclusionResults.props.pagination.itemsPerPage,
                 "offset": (this.exclusionResults.props.pagination.page - 1) * this.exclusionResults.props.pagination.itemsPerPage,
             }
-            if (this.rules.sortBy) {
+            if (this.exclusionResults.sortBy) {
                 params["ordering"] = this.exclusionResults.sortBy.join(",")
             }
+
             MappingTaskService.get_exclusions(this.project.id, this.selectedTask.id, params).then((response) => {
                 this.exclusionResults.loading = false
                 this.exclusionResults.data = response.results
@@ -929,20 +950,33 @@ export default {
             }, 5000)
         },
         createMappingRules() {
-            this.$store.dispatch('MappingTasks/mappingsEclToRules',this.selectedTask.id)
-            this.pollRules()
+            const that = this
+            MappingTaskService.create_rules(this.project.id, this.selectedTask.id, {}).then(() => {
+                that.rules.updating = true
+                clearTimeout(that.ruleSearchTimeout)
+                that.ruleSearchTimeout = setTimeout(() => {
+                    that.getRules()
+                    that.rules.updating = false
+                }, 5000)
+            })
         },
         removeMappingRules() {
-            this.$store.dispatch('MappingTasks/removeMappingRules',this.selectedTask.id)
-            this.pollRules()
+            const that = this
+            MappingTaskService.delete_rules(this.project.id, this.selectedTask.id, {}).then((response) => {
+
+                if (Number.isInteger(response)) {
+                    that.getRules()
+                } else {
+                    that.rules.error = response
+                }
+            })
         },
         formDisabled(){
-            return false
-            // if((this.user.id == this.selectedTask.user.id) && (this.user.groups.includes('mapping | edit mapping'))){
-            //     return false
-            // }else{
-            //     return true
-            // }
+            if((this.user.id == this.selectedTask.user.id) && (this.user.groups.includes('mapping | edit mapping'))){
+                return false
+            }else{
+                return true
+            }
         },
         createRemoteExclusion() {
             this.$store.dispatch('MappingTasks/addRemoteExclusion', {
@@ -976,8 +1010,23 @@ export default {
         selectedTask () {
             this.updateTaskDetails()
         },
-        rulesSearch(val) {
-            console.log(val)
+        rulesSearch(val, oldVal) {
+            if (val !== oldVal && (val.length === 0 || val.length > 2)) {
+                clearTimeout(this.ruleSearchTimeout)
+                const that = this
+                this.ruleSearchTimeout = setTimeout(() => {
+                    that.getRules()
+                }, 1000)
+            }
+        },
+        resultsSearch(val, oldVal) {
+            if (val !== oldVal && (val.length === 0 || val.length > 2)) {
+                clearTimeout(this.resultsSearchTimeout)
+                const that = this
+                this.resultsSearchTimeout = setTimeout(() => {
+                    that.getResults()
+                }, 1000)
+            }
         }
     },
      created() {
