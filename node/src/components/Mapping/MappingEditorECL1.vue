@@ -121,7 +121,7 @@
                                                             dense
                                                             color="yellow lighten-2"
                                                             v-if="!item.finished">
-                                                            Query loopt nog (volgede update in {{ queryRetryTimer }}s).
+                                                            Query loopt nog (volgende update in {{ queryRetryTimer }}s).
                                                         </v-alert>
                                                         <!-- <v-alert 
                                                             dense
