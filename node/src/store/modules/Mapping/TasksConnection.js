@@ -98,7 +98,6 @@ const state = {
       axios
       .get(context.rootState.baseUrl+'mapping/api/1.0/automap/'+taskid+'/')
       .then((response) => {
-          console.log(response.data)
           context.commit('setAutomap',response.data)
           context.state.loading.automap = false
           return true;
@@ -109,7 +108,6 @@ const state = {
       axios
       .get(context.rootState.baseUrl+'mapping/api/1.0/tasklist/'+projectid+'/')
       .then((response) => {
-          console.log(response.data)
           context.commit('setTasks', response.data.results)
           context.state.loading.tasklist = false
           return true;
@@ -119,7 +117,6 @@ const state = {
       axios
       .get(context.rootState.baseUrl+'mapping/api/1.0/mapping_reset_task/'+task_id+'/')
       .then((response) => {
-          console.log(response.data)
           return true;
       })
     },
@@ -127,7 +124,6 @@ const state = {
       axios
       .get(context.rootState.baseUrl+'mapping/api/1.0/related_tasks/'+componentid+'/')
       .then((response) => {
-          console.log(response.data)
           context.commit('setRelatedTasks',response.data)
           return true;
       })
@@ -137,7 +133,6 @@ const state = {
       axios
       .get(context.rootState.baseUrl+'mapping/api/1.0/mapping_reverse_exclusions/'+component_id+'/')
       .then((response) => {
-          console.log(response.data)
           context.commit('setReverseExclusions',response.data)
           context.state.loading.reverseExclusions = false
       return true;
@@ -148,7 +143,6 @@ const state = {
       axios
       .get(context.rootState.baseUrl+'mapping/api/1.0/taskdetails/'+taskid+'/')
       .then((response) => {
-          console.log(response.data)
           context.commit('setTaskDetails',response.data)
           context.state.loading.details = false
           return true;
@@ -159,7 +153,6 @@ const state = {
       axios
       .get(context.rootState.baseUrl+'mapping/api/1.0/events_and_comments/'+taskid+'/')
       .then((response) => {
-          console.log(response.data)
           context.commit('setComments',response.data)
           context.state.loading.comments = false
           return true;
@@ -170,7 +163,6 @@ const state = {
       axios
       .get(context.rootState.baseUrl+'mapping/api/1.0/mappings/'+taskid+'/')
       .then((response) => {
-          console.log(response.data)
           context.commit('setTargets',response.data)
           context.state.loading.targets = false
           return true;
@@ -181,7 +173,6 @@ const state = {
       axios
       .get(context.rootState.baseUrl+'mapping/api/1.0/reverse/'+taskid+'/')
       .then((response) => {
-          console.log(response.data)
           context.commit('setReverse',response.data)
           context.state.loading.reverse = false
           return true;
@@ -192,7 +183,6 @@ const state = {
       axios
       .get(context.rootState.baseUrl+'mapping/api/1.0/eclqueries/'+taskid+'/')
       .then((response) => {
-          console.log(response.data)
           context.commit('setQueries',response.data)
           context.state.loading.eclqueries = false
           return true;
@@ -203,7 +193,6 @@ const state = {
       axios
       .get(context.rootState.baseUrl+'mapping/api/1.0/mapping_dialog/'+mappingid+'/')
       .then((response) => {
-          console.log(response.data)
           context.commit('setDialogData',response.data)
           context.state.loading.dialog = false
           return true;
@@ -263,8 +252,6 @@ const state = {
               'taskId' : response.data,
             }
             context.dispatch('postComment', commentPayload)
-
-            console.log(response)
         }
         return true;
       })
@@ -282,7 +269,6 @@ const state = {
       },auth)
       .then((response) => {
         context.dispatch('getMappingTargets',context.state.selectedTask.id)
-        console.log(response)
         return true;
       })
     },
@@ -305,7 +291,6 @@ const state = {
           'taskId' : response.data,
         }
         context.dispatch('postComment',commentPayload)
-        console.log(response.data)
         return true;
       })
     },
@@ -326,7 +311,6 @@ const state = {
       axios
       .get(context.rootState.baseUrl+'mapping/api/1.0/mappings_ecl_to_rules/'+taskid+'/')
       .then((response) => {
-          console.log(response.data)
           context.dispatch('getMappingTargets',context.state.selectedTask.id)
           context.state.loading.eclToRules = false
           return true;
@@ -342,7 +326,6 @@ const state = {
         'id' : projectid
       }, auth)
       .then((response) => {
-          console.log(response.data)
           return true;
       })
     },
@@ -352,7 +335,6 @@ const state = {
       axios
       .get(context.rootState.baseUrl+'mapping/api/1.0/remove_rules/'+taskid+'/')
       .then((response) => {
-          console.log(response.data)
           context.dispatch('getMappingTargets',context.state.selectedTask.id)
           context.state.loading.eclToRules = false
           return true;
@@ -428,8 +410,6 @@ const state = {
         headers: {'X-CSRFToken' : Vue.$cookies.get('csrftoken')},
         withCredentials: true
       }
-      console.log("data", payload)
-
       axios.post(
         context.rootState.baseUrl + 'mapping/api/1.0/users/' + payload.projectId + "/", {
           'user': payload.userId,
