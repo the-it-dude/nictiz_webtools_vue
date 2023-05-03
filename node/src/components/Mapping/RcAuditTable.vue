@@ -356,7 +356,9 @@ export default {
             this.$store.dispatch('RcAuditConnection/massPullChanges')
         },
         columnValueList(val) {
-           return this.$store.state.RcAuditConnection.RcRules.rules.map(d => d[val]).sort()
+            var values = this.$store.state.RcAuditConnection.RcRules.rules.map(d => d[val]).sort()
+            var unique = [...new Set(values.filter(v => v !== null))]
+            return unique
         },
         valuesPresent(val) {
             var values = this.$store.state.RcAuditConnection.RcRules.rules.map(d => d[val]).sort()

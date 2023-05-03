@@ -44,8 +44,7 @@ axios.interceptors.response.use((response) => {
       return Promise.reject(error);
   }
 
-  console.log(error.response)
-  if (error.response.status === 403 && !originalRequest._retry && 0) {
+  if (error.response.status === 403 && !originalRequest._retry && originalRequest.url.includes("jwtauth/permissions/")) {
     console.error('will try to refresh')
       originalRequest._retry = true;
       const tokenStorage = JSON.parse(localStorage.getItem('user'));

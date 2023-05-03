@@ -116,7 +116,7 @@ const state = {
     resetTask: (context, task_id) => {
       axios
       .get(context.rootState.baseUrl+'mapping/api/1.0/mapping_reset_task/'+task_id+'/')
-      .then((response) => {
+      .then(() => {
           return true;
       })
     },
@@ -135,7 +135,7 @@ const state = {
       .then((response) => {
           context.commit('setReverseExclusions',response.data)
           context.state.loading.reverseExclusions = false
-      return true;
+          return true;
       })
     },
     getTaskDetails: (context, taskid) => {
@@ -267,7 +267,7 @@ const state = {
       .post(context.rootState.baseUrl+'mapping/api/1.0/mapping_add_from_reverse/', {
         'payload' : payload,
       },auth)
-      .then((response) => {
+      .then(() => {
         context.dispatch('getMappingTargets',context.state.selectedTask.id)
         return true;
       })
@@ -310,7 +310,7 @@ const state = {
       context.state.loading.eclToRules = true
       axios
       .get(context.rootState.baseUrl+'mapping/api/1.0/mappings_ecl_to_rules/'+taskid+'/')
-      .then((response) => {
+      .then(() => {
           context.dispatch('getMappingTargets',context.state.selectedTask.id)
           context.state.loading.eclToRules = false
           return true;
@@ -325,7 +325,7 @@ const state = {
       .post(context.rootState.baseUrl+'mapping/api/1.0/mappings_ecl_to_rules/', {
         'id' : projectid
       }, auth)
-      .then((response) => {
+      .then(() => {
           return true;
       })
     },
@@ -334,7 +334,7 @@ const state = {
       context.state.loading.eclToRules = true
       axios
       .get(context.rootState.baseUrl+'mapping/api/1.0/remove_rules/'+taskid+'/')
-      .then((response) => {
+      .then(() => {
           context.dispatch('getMappingTargets',context.state.selectedTask.id)
           context.state.loading.eclToRules = false
           return true;
