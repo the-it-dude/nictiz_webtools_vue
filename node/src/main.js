@@ -44,14 +44,14 @@ axios.interceptors.response.use((response) => {
       return Promise.reject(error);
   }
 
-  if (error.response.status === 403 && !originalRequest._retry && originalRequest.url.includes("jwtauth/permissions/")) {
+  if (error.response !== undefined && error.response.status === 403 && !originalRequest._retry && originalRequest.url.includes("jwtauth/permissions/")) {
     console.error('will try to refresh')
       originalRequest._retry = true;
       const tokenStorage = JSON.parse(localStorage.getItem('user'));
       // alert('Refreshtoken: '+ tokenStorage)
       return axios.post(store.state.baseUrl+'jwtauth/refresh/',
           {
-              "refresh": tokenStorage.refresh
+              "refresh": tokenStorage.refreshb
           })
           .then(res => {
               if (res.status === 200) {

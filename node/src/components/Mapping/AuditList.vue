@@ -268,10 +268,10 @@ export default {
             this.$store.dispatch('MappingAudits/trigger', id)
             this.getAudits(id)
         },
-        getAudits(){
+        getAudits(project_id, task_id){
             this.loading = true
             this.audits = []
-            MappingTaskService.get_audits(this.project.id, this.selectedTask.id, {}).then((response) => {
+            MappingTaskService.get_audits(project_id, task_id, {}).then((response) => {
                 if (response === undefined) {
                     this.audits = []
                 } else {
@@ -280,10 +280,6 @@ export default {
 
                 this.loading = false
             })
-            // this.$store.dispatch('MappingAudits/getAudits', id)
-            // this.$store.dispatch('MappingAudits/getBackgroundProcesses')
-            // this.pollProcesses()
-
         },
         columnValueList(val) {
            return this.audits.map(d => d[val]).sort()
@@ -330,8 +326,8 @@ export default {
             return this.$store.state.userData
         }
     },
-    mounted() {
-        this.getAudits()
+    created() {
+        this.getAudits(this.project.id, this.selectedTask.id)
         // this.$store.dispatch('MappingAudits/getAudits',this.selectedTask.id)
         // this.$store.dispatch('MappingAudits/getBackgroundProcesses')
         // this.pollProcesses()
