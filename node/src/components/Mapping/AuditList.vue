@@ -56,7 +56,7 @@
                             small @click="auditDetails = 'true'">Toon hits</v-btn>
                         <v-spacer/>
                         <v-btn small @click="triggerAudit(selectedTask.id)">Trigger audit</v-btn>
-                        <v-btn small @click="getAudits()">Vernieuw QA hits</v-btn>
+                        <v-btn small @click="getAudits(process.id, selectedTask.id)">Vernieuw QA hits</v-btn>
                     </v-card-actions>
                 </v-card-text>
             </v-card>
@@ -94,7 +94,7 @@
                         small @click="auditDetails = 'true'">Toon hits</v-btn>
                     <v-spacer/>
                     <v-btn small @click="triggerAudit(selectedTask.id)">Trigger audit</v-btn>
-                    <v-btn small @click="getAudits()">Vernieuw QA hits</v-btn>
+                    <v-btn small @click="getAudits(project.id, selectedTask.id)">Vernieuw QA hits</v-btn>
                 </v-card-actions>
                 <v-card-title v-if="backgroundProcesses.active">
                     Actieve achtergrondprocessen
@@ -266,7 +266,7 @@ export default {
         },
         triggerAudit(id){
             this.$store.dispatch('MappingAudits/trigger', id)
-            this.getAudits(id)
+            this.getAudits(this.project.id, id)
         },
         getAudits(project_id, task_id){
             this.loading = true
