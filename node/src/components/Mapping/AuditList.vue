@@ -56,7 +56,7 @@
                             small @click="auditDetails = 'true'">Toon hits</v-btn>
                         <v-spacer/>
                         <v-btn small @click="triggerAudit(selectedTask.id)">Trigger audit</v-btn>
-                        <v-btn small @click="getAudits(process.id, selectedTask.id)">Vernieuw QA hits</v-btn>
+                        <v-btn small @click="getAudits(project.id, selectedTask.id)">Vernieuw QA hits</v-btn>
                     </v-card-actions>
                 </v-card-text>
             </v-card>
