@@ -265,11 +265,11 @@
                                     <v-col cols=9>
                                         <v-autocomplete
                                             dense
-                                            label="Excludeer huidige taak bij.."
+                                            label="Excludeer huidige taak bij.. 6666"
                                             v-model="remoteExclusion"
-                                            :items="tasks"
-                                            item-text="component.id"
-                                            item-value="component.id">
+                                            :items="remoteExclusions"
+                                            @update:search-input="remoteExclusionSearch($event)"
+                                        >
                                         </v-autocomplete>
                                     </v-col>
                                     <v-col cols=3>
@@ -538,6 +538,7 @@
     </div>
 </template>
 <script>
+import MappingProjectService from '../../services/mapping_project.service';
 import MappingTaskService from '../../services/mapping_task.service';
 
 export default {
@@ -681,9 +682,11 @@ export default {
                     itemsPerPageOptions: [10, 100, 200, 300, 1000]
                 },
                 data: []
-            }
+            },
+            remoteExclusions: [],
+            reverseExclusions: [],
         }
-     },
+    },
      methods: {
         loadTargets () {
             // this.$store.dispatch('MappingTasks/getTaskDetails',this.selectedTask.id)
@@ -735,7 +738,7 @@ export default {
                     that.queryUpdateError = error.response.data.error
                 });
         },
-         saveExclusions() {
+        saveExclusions() {
              var payload = {
                 "id": this.selectedTask.id,
                 "exclusions": {
@@ -797,6 +800,7 @@ export default {
             this.getRules()
             this.getResults()
             this.getExclusions()
+            this.getReverseExclusions()
         },
         getQueries() {
             this.loading = true
@@ -902,8 +906,26 @@ export default {
                 this.exclusionResults.props.pagination.pageCount = Math.ceil(response.count / this.exclusionResults.props.pagination.itemsPerPage)
             })
         },
+        getReverseExclusions() {
+            MappingTaskService.get_reverse_exclusions(this.project.id, this.selectedTask.id, {}).then((response) => {
+                this.reverseExclusions = response
+            })
+        },
+        remoteExclusionSearch(v) {
+            if (v !== null) {
+                if (v.length >= 3) {
+                    let params = {
+                        "search": v
+                    }
+                    let that = this
+                    MappingProjectService.get_tasks(this.project.id, params).then((response) => {
+                        that.remoteExclusions = response.results.map((x) => {return {"text": x.component.title, "value": x.component.id}})
+                    })
+                }
+            }
+        },
         pollTargets () {
-            clearInterval(this.interval_targets)
+             clearInterval(this.interval_targets)
             this.interval_targets = setInterval(() => {
                 console.log("Instantie van loop pollTargets() begonnen.")
                 this.loadExclusions = false
@@ -996,14 +1018,12 @@ export default {
 
             this.remoteExclusion = null
             // this.pollRules()
+            this.getReverseExclusions()
         },
     },
     computed: {
         tasks(){
             return this.$store.state.MappingTasks.tasks
-        },
-        reverseExclusions(){
-            return this.$store.state.MappingTasks.reverseExclusions
         },
         dialogData(){
             return this.$store.state.MappingTasks.dialogData
