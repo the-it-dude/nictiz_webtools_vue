@@ -411,6 +411,7 @@
                                     :loading="results.loading"
                                     :server-items-length="results.props.pagination.itemsLength"
                                     :footer-props="results.props"
+                                    :item-class="getResultBackground"
                                     @pagination="handlePagination(results, getResults)($event)"
                                     @update:sort-by="handleSort(results)($event)"
                                     @update:sort-desc="handleSortDesc(results, getResults)($event)"
@@ -850,6 +851,14 @@ export default {
                 this.results.props.pagination.itemsLength = response.count
                 this.results.props.pagination.pageCount = Math.ceil(response.count / this.results.props.pagination.itemsPerPage)
             })
+        },
+        getResultBackground(item) {
+            if (item.status === "new") {
+                return "green lighten-5"
+            }
+            if (item.status === "deleted") {
+                return "red lighten-5"
+            }
         },
         getRules() {
             this.rules.loading = true
