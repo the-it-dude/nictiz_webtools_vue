@@ -60,6 +60,10 @@ class MappingTaskService {
     get_reverse_exclusions(projectId, taskId, params) {
         return RequestService.get_response(RequestService.base_url() + "mapping_reverse_exclusions/" + taskId + "/", params)
     }
+
+    delete_reverse_exclusions(projectId, taskId, params) {
+        return RequestService.post_response(RequestService.base_url() + "mapping_remove_reverse/", params)
+    }
 }
 
 export default new MappingTaskService();

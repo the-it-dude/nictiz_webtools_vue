@@ -1,6 +1,6 @@
 import RequestService from './request.service';
 
-class MappingProjectService {
+class MappingProjectService {    
     get_task(projectId, taskId) {
         // Get task details
         return RequestService.get_response(RequestService.task_url(projectId, taskId))

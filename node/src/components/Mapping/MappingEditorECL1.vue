@@ -294,7 +294,7 @@
                             <v-card-text>
                                 <li v-for="(value, key) in reverseExclusions" :key="key">
                                     Taak: {{value.task}} / Component: {{value.component_id}} {{value.component_title}} 
-                                    <a @click="$store.dispatch('MappingTasks/removeReverseMapping', {'task' : value.task, 'component' : selectedTask.component.id})">Verwijder</a>
+                                    <a @click="removeReverseMapping(value)">Verwijder</a>
                                 </li>
                             </v-card-text>
                         </v-card>
@@ -911,6 +911,12 @@ export default {
                 this.reverseExclusions = response
             })
         },
+        removeReverseMapping(v) {
+            let params = {"payload": {'task' : v.task, 'component' : this.selectedTask.component.id}}
+            MappingTaskService.delete_reverse_exclusions(this.project.id, this.selectedTask.id, params).then(() => {
+                this.getReverseExclusions()
+            })
+        },
         remoteExclusionSearch(v) {
             if (v !== null) {
                 if (v.length >= 3) {
@@ -1018,7 +1024,8 @@ export default {
 
             this.remoteExclusion = null
             // this.pollRules()
-            this.getReverseExclusions()
+            let that = this
+            setTimeout(() => {that.getReverseExclusions()}, 1000)
         },
     },
     computed: {
