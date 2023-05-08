@@ -265,7 +265,7 @@
                                     <v-col cols=9>
                                         <v-autocomplete
                                             dense
-                                            label="Excludeer huidige taak bij.. 6666"
+                                            label="Excludeer huidige taak bij.."
                                             v-model="remoteExclusion"
                                             :items="remoteExclusions"
                                             @update:search-input="remoteExclusionSearch($event)"
