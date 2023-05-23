@@ -145,7 +145,7 @@
          return {
              headers: [
                  { text: '', value: 'open' },
-                 { text: 'Type melding', value: 'audit_type', filters: ["unmapped_component"] },
+                 { text: 'Type melding', value: 'audit_type', filters: ["Concept niet gemapt"] },
                  { text: 'Reden', value: 'hit_reason' },
                  { text: 'Commentaaar', value: "comment" },
                  { text: 'Whitelist', value: 'ignore', filters: [true, false] },
