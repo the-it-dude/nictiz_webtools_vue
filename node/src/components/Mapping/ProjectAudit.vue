@@ -11,6 +11,10 @@
                          <v-simple-table max-width="40">
                              <tbody>
                                  <tr>
+                                     <td>FSN</td>
+                                     <td>{{ selectedHit.extra_1  }} | {{ selectedHit.extra_2  }}</td>
+                                 </tr>
+                                 <tr>
                                      <td>Commentaar:</td>
                                      <td><v-textarea v-model="selectedHit.comment" label="Commentaar"></v-textarea></td>
                                  </tr>
@@ -21,10 +25,6 @@
 
                                          <div v-if="selectedHit.ignore_user">Whitelist door: {{selectedHit.ignore_user}}</div>
                                      </td>
-                                 </tr>
-                                 <tr>
-                                     <td>Sticky:</td>
-                                     <td><v-checkbox v-model="selectedHit.sticky" label="Sticky"></v-checkbox></td>
                                  </tr>
                              </tbody>
                          </v-simple-table>
@@ -145,11 +145,10 @@
          return {
              headers: [
                  { text: '', value: 'open' },
-                 { text: 'Type melding', value: 'audit_type', filters: ["Concept niet gemapt"] },
                  { text: 'Reden', value: 'hit_reason' },
+                 { text: 'FSN', value: 'extra_1' },
                  { text: 'Commentaaar', value: "comment" },
                  { text: 'Whitelist', value: 'ignore', filters: [true, false] },
-                 { text: 'Sticky', value: 'sticky', filters: [true, false] },
                  { text: 'Timestamp', value: 'first_hit_time' },
              ],
              pagination: {
@@ -159,9 +158,7 @@
              searchTimeout: null,
              hits: [],
              filters: {
-                 audit_type:  [],
                  ignore: [],
-                 sticky: [],
              },
 
              loading: true,
@@ -194,7 +191,6 @@
                  "comment": null,
                  "ignore": false,
                  "ignore_user": null,
-                 "sticky": false,
                  "first_hit_time": "2023-05-22T16:52:46.650120+02:00"
              }
          }
@@ -240,7 +236,6 @@
          updateHit() {
              let payload = {
                  "ignore": this.selectedHit.ignore,
-                 "sticky": this.selectedHit.sticky,
                  "comment": this.selectedHit.comment
              }
              let that = this
