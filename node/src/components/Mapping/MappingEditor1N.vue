@@ -23,9 +23,9 @@
                             <v-list-item
                                 :key="item.id"
                                 dense
-                                :loading="loading.targets">
+                                :loading="loading">
                                 <v-list-item-content v-if="(item.id == 'extra') && (formDisabled == false)">
-                                        <v-btn color="grey lighten-2" small v-on:click="openDialog(item.id)">Nieuwe mapping toevoegen</v-btn>
+                                        <v-btn color="grey lighten-2" small v-on:click="openDialog(item)">Nieuwe mapping toevoegen</v-btn>
                                 </v-list-item-content>
 
                                 <span v-else-if="(item.id == 'extra' && formDisabled == true)"></span>
@@ -91,7 +91,7 @@
                                                 </v-col>
                                                 <v-col cols="1">
                                                     <v-row v-if="formDisabled == false">
-                                                        <v-btn color="grey" v-on:click="openDialog(item.id)" icon><v-icon right>mdi-file-edit</v-icon></v-btn>
+                                                        <v-btn color="grey" v-on:click="openDialog(item)" icon><v-icon right>mdi-file-edit</v-icon></v-btn>
                                                     </v-row>
                                                     <v-row>
                                                         <v-tooltip right>
@@ -125,7 +125,7 @@
         <!-- Modal for editing target -->
         <v-dialog v-model="targetEditDialog" persistent max-width="1000px">
             <v-card
-                :loading="loading.targets">
+                :loading="loading" v-if="dialogData">
                 <v-card-title>
                     <span class="headline">Aanpassen mapping</span>
                 </v-card-title>
@@ -141,7 +141,7 @@
                                 <v-autocomplete
                                     :disabled="formDisabled"
                                     v-model="targetDialogNewTarget"
-                                    :loading="loading.search"
+                                    :loading="loadingSearch"
                                     :items="searchResults"
                                     :search-input.sync="search"
                                     :return-object="true"
@@ -286,11 +286,22 @@
     </div>
 </template>
 <script>
+
+import MappingTaskService from '../../services/mapping_task.service'
+
 export default {
+    props: {
+        project: Object,
+        selectedTask: Object,
+    },
     data() {
         return {
             search: null,
-            searchExtra: null,
+            searchResults: [],
+            loadingSearch: false,
+            loading: false,
+            targets: [],
+            dialogData: null,
             dialogTarget: {},
             targetEditDialog: false,
             targetDialogOldTarget: {},
@@ -299,33 +310,40 @@ export default {
     },
     watch: {
         search (val) {
-            (val.length > 0) && this.$store.dispatch('MappingTasks/TargetSearch', val)
-        },
-        searchExtra (val) {
-            (val.length > 0) && this.$store.dispatch('MappingTasks/TargetSearch', val)
+            this.loadingSearch = true
+            if (val.length > 0) {
+                MappingTaskService.search_targets(this.project.id, this.selectedTask.id, {"query": val}).then((response) => {
+                    this.loadingSearch = false
+                    this.searchResults = response.data
+                })
+            }
         }
     },
     methods: {
-        submit () {
-            this.$store.dispatch('MappingTasks/postMappingTargets',this.targets)
-        },
-        searchTarget () {
-            this.$store.dispatch('MappingTasks/TargetSearch', this.search)
-        },
-        openDialog (mappingid) {
+        openDialog (item) {
             this.targetEditDialog = true
-            this.$store.dispatch('MappingTasks/getDialogData', mappingid)
+            MappingTaskService.get_dialog_data(this.project.id, this.selectedTask.id, item.id, {}).then((response) => {
+                console.log("Dialog ", response)
+                this.dialogTarget = item
+                this.dialogData = response
+            })
+            // this.$store.dispatch('MappingTasks/getDialogData', mappingid)
             // this.$store.dispatch('MappingTasks/getDialogTarget', mappingid)
-            this.dialogTarget = this.targets.filter(obj => {
-                return obj.id === mappingid
-            })[0]
+
         },
         saveDialog (newData) {
             this.targetEditDialog = false
             this.targetDialogOldTarget = {}
             this.targetDialogNewTarget = false
-            this.$store.dispatch('MappingTasks/saveDialogTarget', newData).then(() =>{
-                this.$store.dispatch('MappingTasks/postMappingTargets',this.targets)
+            MappingTaskService.create_targets(this.project.id, this.selectedTask.id, {"task": this.selectedTask.id, "targets": newData}).then(() => {
+                this.getTargets()
+            })
+        },
+        getTargets() {
+            this.loading = true
+            MappingTaskService.get_targets(this.project.id, this.selectedTask.id, {}).then((response) => {
+                this.loading = false
+                this.targets = response
             })
         }
     },
@@ -337,29 +355,14 @@ export default {
                 return true
             }
         },
-        project(){
-            return this.$store.state.MappingProjects.selectedProject
-        },
-        targets(){
-            return this.$store.state.MappingTasks.mappingTargets
-        },
-        selectedTask(){
-            return this.$store.state.MappingTasks.selectedTask
-        },
-        dialogData(){
-            return this.$store.state.MappingTasks.dialogData
-        },
-        searchResults(){
-            return this.$store.state.MappingTasks.searchResults
-        },
-        loading(){
-            return this.$store.state.MappingTasks.loading
-        },
         user(){
             return this.$store.state.userData
         }
     },
     created() {
+        if (this.selectedTask !== null) {
+            this.getTargets()
+        }
     }
 }
 </script>

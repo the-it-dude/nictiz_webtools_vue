@@ -51,7 +51,7 @@
                         </v-row>
                         <v-row no-gutters>
                             <v-col cols=12>
-                                <CommentsList :project="selectedProject" v-bind:selectedTask.sync="selectedTask"  />
+                                <CommentsList ref="commentsList" :project="selectedProject" v-bind:selectedTask.sync="selectedTask"  />
                             </v-col>
                         </v-row>
                         <v-row no-gutters>
@@ -74,7 +74,7 @@
                     <v-col cols=4>
                         <v-row no-gutters>
                             <v-col cols=12>
-                                <MappingEditor1N />
+                                <MappingEditor1N :project="selectedProject" v-bind:selectedTask.sync="selectedTask" />
                             </v-col>
                         </v-row>
                     </v-col>

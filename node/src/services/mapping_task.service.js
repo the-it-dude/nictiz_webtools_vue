@@ -59,6 +59,23 @@ class MappingTaskService {
         // TODO: Replace with new API.
         return RequestService.get_response(RequestService.base_url() + "events_and_comments/" + taskId + "/", params)
     }
+
+    get_targets(projectId, taskId, params) {
+        // TODO: Replace with new API.
+        return RequestService.get_response(RequestService.base_url() + "mappings/" + taskId + "/", params)
+    }
+
+    search_targets(projectId, taskId, params) {
+        return RequestService.post_response(RequestService.base_url() + "componentsearch/", params)
+    }
+
+    create_targets(projectId, taskId, params) {
+        return RequestService.post_response(RequestService.base_url() + "mappings/", params)
+    }
+
+    get_dialog_data(projectId, taskId, mappingId, params) {
+        return RequestService.get_response(RequestService.base_url() + "mapping_dialog/" + mappingId + "/", params)
+    }
 }
 
 export default new MappingTaskService();
