@@ -46,12 +46,12 @@
                         </v-row>
                         <v-row no-gutters>
                             <v-col cols=12>
-                                <AuditList ref="auditList2" :project="selectedProject" v-bind:selectedTask.sync="selectedTask"  />
+                                <AuditList ref="auditList" :project="selectedProject" v-bind:selectedTask.sync="selectedTask"  />
                             </v-col>
                         </v-row>
                         <v-row no-gutters>
                             <v-col cols=12>
-                                <CommentsList ref="commentsList2" :project="selectedProject" v-bind:selectedTask.sync="selectedTask"  />
+                                <CommentsList ref="commentsList" :project="selectedProject" v-bind:selectedTask.sync="selectedTask"  />
                             </v-col>
                         </v-row>
                         <v-row no-gutters>
@@ -74,7 +74,7 @@
                     <v-col cols=4>
                         <v-row no-gutters>
                             <v-col cols=12>
-                                <MappingEditor1N />
+                                <MappingEditor1N :project="selectedProject" v-bind:selectedTask.sync="selectedTask" />
                             </v-col>
                         </v-row>
                     </v-col>

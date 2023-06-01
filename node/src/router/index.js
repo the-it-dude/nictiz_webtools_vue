@@ -67,9 +67,14 @@ const routes = [
     component: () => import('../views/Mapping/CreateTasks.vue')
   },
   {
-    path: '/mapping/projectAudit/:projectid/',
+    path: '/mapping/Projects/:projectid/Audit/',
     name: 'Audits per project',
     component: () => import('../views/Mapping/ProjectAudit.vue')
+  },
+  {
+    path: '/mapping/Projects/:projectid/TaskAudit/',
+    name: 'Audits per project',
+    component: () => import('../views/Mapping/AuditHitsPerProject.vue')
   },
   {
     path: '/mapping/lookup/',

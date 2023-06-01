@@ -21,6 +21,14 @@ class MappingProjectService {
         return RequestService.get_response(RequestService.base_url() + 'users/' + projectId + '/', params)
     }
 
+    get_audit(projectId, params) {
+        // Get Project Audit list
+        return RequestService.get_response(RequestService.project_url(projectId) + "audits/", params)
+    }
+
+    post_audit(projectId, auditId, payload) {
+        return RequestService.put_response(RequestService.project_url(projectId) + "audits/" + auditId + "/", payload)
+    }
 }
 
 export default new MappingProjectService();

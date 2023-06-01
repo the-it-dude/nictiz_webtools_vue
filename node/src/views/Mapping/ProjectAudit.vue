@@ -1,16 +1,21 @@
 <template>
     <div id="app">
-        <AuditHitList />
+        <ProjectAudit :projectId="selectedProject" />
     </div>
 </template>
 
 <script>
-import AuditHitList from '@/components/Mapping/AuditHitsPerProject';
+ import ProjectAudit from '@/components/Mapping/ProjectAudit';
 
-export default {
-    components: {
-        AuditHitList,
-        
-    }
-}
+ export default {
+     components: {
+         ProjectAudit,
+
+     },
+     computed: {
+         selectedProject () {
+             return this.$route.params.projectid
+         },
+     }
+ }
 </script>

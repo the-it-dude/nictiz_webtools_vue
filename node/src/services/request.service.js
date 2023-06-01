@@ -23,6 +23,14 @@ class RequestService {
             .post(url, payload, auth)
     }
 
+    put_response(url, payload) {
+        const auth = {
+            headers: {'X-CSRFToken' : Vue.$cookies.get('csrftoken')},
+            withCredentials: true
+        }
+        return axios.patch(url, payload, auth)
+    }
+
     base_url() {
         return store.state.baseUrl + 'mapping/api/1.0/'
     }
