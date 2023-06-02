@@ -63,6 +63,8 @@ class MappingTaskService {
 
     delete_reverse_exclusions(projectId, taskId, params) {
         return RequestService.post_response(RequestService.base_url() + "mapping_remove_reverse/", params)
+    }
+
     get_targets(projectId, taskId, params) {
         // TODO: Replace with new API.
         return RequestService.get_response(RequestService.base_url() + "mappings/" + taskId + "/", params)
