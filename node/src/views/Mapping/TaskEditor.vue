@@ -46,12 +46,12 @@
                         </v-row>
                         <v-row no-gutters>
                             <v-col cols=12>
-                                <AuditList ref="auditList" :project="selectedProject" v-bind:selectedTask.sync="selectedTask"  />
+                                <AuditList ref="auditList2" :project="selectedProject" v-bind:selectedTask.sync="selectedTask"  />
                             </v-col>
                         </v-row>
                         <v-row no-gutters>
                             <v-col cols=12>
-                                <CommentsList ref="commentsList" :project="selectedProject" v-bind:selectedTask.sync="selectedTask"  />
+                                <CommentsList ref="commentsList2" :project="selectedProject" v-bind:selectedTask.sync="selectedTask"  />
                             </v-col>
                         </v-row>
                         <v-row no-gutters>
@@ -215,7 +215,12 @@ export default {
             this.$router.push({ path: `/mapping/Projects/${this.$route.params.projectid}/Task/` + task.id })
             this.selectedTask = task
             this.$emit('update:selectedTask', this.selectedTask)
-            this.$refs.auditList.getAudits(this.selectedProject.id, this.selectedTask.id)
+            if (this.$refs.auditList !== undefined) {
+                this.$refs.auditList.getAudits(this.selectedProject.id, this.selectedTask.id)
+            }
+            if (this.$refs.auditList2 !== undefined) {
+                this.$refs.auditList2.getAudits(this.selectedProject.id, this.selectedTask.id)
+            }
         },
         getTaskDetails: function(taskId) {
             MappingProjectService.get_task(this.$route.params.projectid, taskId).then((response) => {
@@ -234,10 +239,15 @@ export default {
             })
         },
         newComment: function() {
-            this.$refs.commentsList.getComments(this.selectedProject.id, this.selectedTask.pk)
+            if (this.$refs.commentsList !== undefined) {
+                this.$refs.commentsList.getComments(this.selectedProject.id, this.selectedTask.pk)
+            }
+            if (this.$refs.commentsList2 !== undefined) {
+                this.$refs.commentsList2.getComments(this.selectedProject.id, this.selectedTask.pk)
+            }
         }
     },
-    computed: {
+     computed: {
         //selectedTask () {
         //  return this.$store.state.MappingTasks.selectedTask
         //},

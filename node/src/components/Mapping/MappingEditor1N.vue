@@ -323,7 +323,6 @@ export default {
         openDialog (item) {
             this.targetEditDialog = true
             MappingTaskService.get_dialog_data(this.project.id, this.selectedTask.id, item.id, {}).then((response) => {
-                console.log("Dialog ", response)
                 this.dialogTarget = item
                 this.dialogData = response
             })

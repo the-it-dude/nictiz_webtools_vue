@@ -663,9 +663,9 @@ export default {
                 sortBy: [],
                 search: '',
                 values_map: {
-                    "key": "id",
-                    "component.id": "component_id",
-                    "excluded_by": "mapcorrelation",
+                    "key": "code",
+                    "fsn": "task__source_component__component_title",
+                    "excluded_by": "task__source_component__component_id",
                 },
                 props: {
                     pagination: {
