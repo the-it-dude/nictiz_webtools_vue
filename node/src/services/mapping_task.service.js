@@ -78,6 +78,10 @@ class MappingTaskService {
         return RequestService.post_response(RequestService.base_url() + "mappings/", params)
     }
 
+    save_dialog_data(projectId, taskId, params) {
+        return RequestService.post_response(RequestService.base_url() + "mapping_dialog/", params)
+    }
+
     get_dialog_data(projectId, taskId, mappingId, params) {
         return RequestService.get_response(RequestService.base_url() + "mapping_dialog/" + mappingId + "/", params)
     }

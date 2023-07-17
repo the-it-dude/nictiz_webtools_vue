@@ -317,6 +317,9 @@ export default {
                     this.searchResults = response.data
                 })
             }
+        },
+        selectedTask () {
+            this.getTargets()
         }
     },
     methods: {
@@ -334,8 +337,18 @@ export default {
             this.targetEditDialog = false
             this.targetDialogOldTarget = {}
             this.targetDialogNewTarget = false
-            MappingTaskService.create_targets(this.project.id, this.selectedTask.id, {"task": this.selectedTask.id, "targets": newData}).then(() => {
-                this.getTargets()
+            MappingTaskService.save_dialog_data(
+                this.project.id,
+                this.selectedTask.id,
+                {"mapping": this.dialogData, "task": this.selectedTask.id, "new": newData}
+            ).then(() => {
+                MappingTaskService.create_targets(
+                    this.project.id,
+                    this.selectedTask.id,
+                    {"task": this.selectedTask.id, "targets": this.targets}
+                ).then(() => {
+                    this.getTargets()
+                })
             })
         },
         getTargets() {
